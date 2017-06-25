@@ -1,0 +1,52 @@
+version: '2'
+
+volumes:
+  database_data:
+    driver: local
+
+services:
+  web:
+    build: .
+    container_name: wf_web
+    ports:
+      - 3000:80
+      - 5858:5858
+    links:
+      - mysql
+      - redis
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ./web:/app/web:ro
+      - ./test:/app/test:ro
+      - ./logs:/app/logs
+      - ./coverage:/app/coverage
+    env_file:
+      - web/secrets.env
+    environment:
+      SQL_HOST: 'mysql'
+      SQL_USER: 'user'
+      SQL_PASS: 'secret'
+      SQL_NAME: 'what-futures'
+      NODE_ENV: 'dev'
+      APP_PORT: 80
+      DISABLE_CHECKS: 1
+    command: node node_modules/.bin/nodemon --debug=0.0.0.0:5858 --watch web web/server.js
+
+  mysql:
+    image: mysql:latest
+    container_name: wf_mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - database_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: what-futures
+      MYSQL_USER: user
+      MYSQL_PASSWORD: secret
+
+  redis:
+    image: redis:latest
+    container_name: wf_redis
