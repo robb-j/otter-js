@@ -162,7 +162,7 @@ describe('Otter', function() {
       
       assert.throws(() => {
         TestOtter.addAdapter(adapter)
-      }, /Plugin already registered/)
+      }, /Adapter already registered/)
     })
     
     it('should return itself for chaining', function() {
