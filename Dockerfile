@@ -1,7 +1,4 @@
-FROM node:7.9-alpine
-
-
-EXPOSE 80
+FROM node
 
 
 RUN mkdir -p /app
@@ -11,14 +8,14 @@ WORKDIR /app
 EXPOSE 80
 
 
-VOLUME /app/logs
+# VOLUME /app/logs
 
 
 COPY package.json /app/
 RUN npm install --silent
 
 
-COPY web /app/web
+COPY lib /app/lib
 
 
 RUN node node_modules/.bin/apidoc -i web/ -o docs/ --silent

@@ -26,7 +26,11 @@ module.exports = {
     'brace-style': ["error", "stroustrup", { "allowSingleLine": true } ],
     'no-multiple-empty-lines': 'off',
     'no-unused-vars': 'off',
-    'space-before-function-paren': ['error', 'never']
+    'space-before-function-paren': ['error', {
+      'anonymous': 'never',
+      'named': 'never',
+      'asyncArrow': 'always'
+    }]
   },
   
   // Custom globals
