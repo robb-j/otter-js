@@ -28,4 +28,23 @@ describe('#flattenObject', function() {
     assert.deepEqual(flat, expected)
   })
   
+  it('should ignore non-owned objects', function() {
+    
+    // A class with a default value
+    class Test { }
+    Test.prototype.unowned = '14'
+    
+    
+    // Create an instance
+    let object = new Test()
+    
+    
+    // Flatten the object
+    let flat = flattenObject(object)
+    
+    
+    // Make sure it didn't flatted the unowned property
+    assert.equal(flat.unowned, undefined)
+  })
+  
 })
