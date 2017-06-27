@@ -51,5 +51,12 @@ describe('#parseAttribute', function() {
     assert.equal(attr.options.someProp, 'B')
   })
   
+  it('should fail if no type passed', function() {
+    let raw = { someProp: 'C' }
+    assert.throws(() => {
+      parseAttribute(raw, available, 'myAttr', 'MyModel')
+    }, /Could not determine type/)
+  })
+  
   
 })

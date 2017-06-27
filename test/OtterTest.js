@@ -338,13 +338,8 @@ describe('Otter', function() {
       // Add our custom adapter
       AnotherOtter.addAdapter(new CustomAdapter())
       
-      
-      console.log('starting')
-      
       // Start otter
       await AnotherOtter.start()
-      
-      console.log('started')
       
       // Check setup was called and passed the correct instance
       assert.equal(instance, AnotherOtter)
