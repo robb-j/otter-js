@@ -24,4 +24,10 @@ describe('MemoryAdapter', function() {
     })
   })
   
+  describe('#supportsAttribute', function() {
+    it('should support all attributes', function() {
+      assert(testAdapter.supportsAttribute())
+    })
+  })
+  
 })
