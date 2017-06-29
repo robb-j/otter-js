@@ -9,13 +9,18 @@ describe('Attribute', function() {
     
     it('should store the options', function() {
       let opts = {}
-      let attr = new Otter.Types.Attribute(null, opts)
+      let attr = new Otter.Types.Attribute(null, null, opts)
       assert.equal(attr.options, opts)
     })
     
     it('should store its name', function() {
       let attr = new Otter.Types.Attribute('myAttr')
       assert.equal(attr.name, 'myAttr')
+    })
+    
+    it('should store its model name', function() {
+      let attr = new Otter.Types.Attribute(null, 'MyModel')
+      assert.equal(attr.modelName, 'MyModel')
     })
     
     it('should set default options', function() {
@@ -38,7 +43,18 @@ describe('Attribute', function() {
         attr.validate()
       })
     })
-    
+  })
+  
+  
+  describe('#fullName', function() {
+    let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
+    assert.equal(attr.fullName, 'MyModel.myAttr')
+  })
+  
+  
+  describe('#valueType', function() {
+    let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
+    assert.equal(attr.valueType, null)
   })
   
   

@@ -30,7 +30,8 @@ module.exports = {
       'anonymous': 'never',
       'named': 'never',
       'asyncArrow': 'always'
-    }]
+    }],
+    'valid-typeof': ['error', { 'requireStringLiterals': false }]
   },
   
   // Custom globals

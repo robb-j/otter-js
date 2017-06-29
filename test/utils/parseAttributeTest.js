@@ -5,9 +5,9 @@ const parseAttribute = require('../../lib/utils/parseAttribute')
 describe('#parseAttribute', function() {
   
   let available = {
-    String: function(name, opts) { this.name = name; this.options = opts },
-    Number: function(name, opts) { this.name = name; this.options = opts },
-    Boolean: function(name, opts) { this.name = name; this.options = opts }
+    String: function(n, m, o) { this.name = n; this.model = m; this.options = o },
+    Number: function(n, m, o) { this.name = n; this.model = m; this.options = o },
+    Boolean: function(n, m, o) { this.name = n; this.model = m; this.options = o }
   }
   
   
@@ -44,10 +44,11 @@ describe('#parseAttribute', function() {
     assert(attr)
   })
   
-  it('should set name and options on new attribute', function() {
+  it('should set name, model & options on new attribute', function() {
     let raw = { type: String, someProp: 'B' }
     let attr = parseAttribute(raw, available, 'myAttr', 'MyModel')
     assert.equal(attr.name, 'myAttr')
+    assert.equal(attr.model, 'MyModel')
     assert.equal(attr.options.someProp, 'B')
   })
   
