@@ -20,6 +20,7 @@ describe('#makePluginable', function() {
     assert(target.active)
   })
   
+  
   describe('target #use', function() {
     
     let plugin = { install() {} }

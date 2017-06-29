@@ -12,7 +12,6 @@ describe('#flattenObject', function() {
     assert.deepEqual(flat, object)
   })
   
-  
   it('should reduce nested objects to dot notation', function() {
     
     let object = {

@@ -26,25 +26,21 @@ class OverwrittingTestClass extends TestClass {
 describe('#collectObjectProperty', function() {
   
   it('should be a function', function() {
-    
     assert.equal(typeof collectObjectProperty, 'function')
   })
   
   it('should return the base attributes', function() {
-    
     let prop = collectObjectProperty(TestClass, 'prop')
     assert.equal(prop.a, 'A')
   })
   
   it('should collect inherited properties', function() {
-    
     let prop = collectObjectProperty(SubTestClass, 'prop')
     assert.equal(prop.a, 'A')
     assert.equal(prop.b, 'B')
   })
   
   it('should overwrite inherited properties', function() {
-    
     let prop = collectObjectProperty(OverwrittingTestClass, 'prop')
     assert.equal(prop.a, 'A2')
   })

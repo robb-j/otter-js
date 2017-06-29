@@ -63,7 +63,7 @@ describe('MemoryAdapter', function() {
       assert(testAdapter.store['TestModel'][0])
     })
     
-    it('should return the id of the new models', async function() {
+    it('should return the values of the new models', async function() {
       
       let values = [
         { name: 'Geoff' },
@@ -71,9 +71,20 @@ describe('MemoryAdapter', function() {
         { name: 'Bob' }
       ]
       
-      let ids = await testAdapter.create('TestModel', values)
+      let records = await testAdapter.create('TestModel', values)
       
-      assert.deepEqual(ids, [0, 1, 2])
+      assert.equal(records.length, 3)
+      assert.equal(records[0].name, 'Geoff')
+    })
+    
+    it('should add created and updated dates', async function() {
+      
+      let values = [ { name: 'Geoff' } ]
+      
+      let records = await testAdapter.create('TestModel', values)
+      
+      assert(records[0].createdAt)
+      assert(records[0].updatedAt)
     })
     
     it('should nest values using dot notation', async function() {
@@ -137,12 +148,22 @@ describe('MemoryAdapter', function() {
       ])
     })
     
+    it('should match all by default', function() {
+      let q = new Otter.Types.Query('TestModel')
+      let res = testAdapter.processQuery(q)
+      assert.equal(res.length, 2)
+    })
+    
     it('should match records', function() {
-      let q = new Otter.Types.Query('TestModel', {
-        where: { name: 'Bob' }
-      })
+      let q = new Otter.Types.Query('TestModel', { name: 'Bob' })
       let res = testAdapter.processQuery(q)
       assert.equal(res[0].name, 'Bob')
+    })
+    
+    it('should cut of after limit', function() {
+      let q = new Otter.Types.Query('TestModel', { limit: 1 })
+      let res = testAdapter.processQuery(q)
+      assert.equal(res.length, 1)
     })
   })
   

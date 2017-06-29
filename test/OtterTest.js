@@ -312,6 +312,17 @@ describe('Otter', function() {
       assert(/an error/.test(error.message))
     })
     
+    it('should fail if no adapters are set', async function() {
+      
+      let AnotherOtter = Otter.extend()
+      
+      let error = await assExt.getAsyncError(async () => {
+        await AnotherOtter.start()
+      })
+      
+      assert(/No Adapters added/.test(error.message))
+    })
+    
   })
   
 })
