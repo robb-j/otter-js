@@ -19,12 +19,18 @@ describe('Query', function() {
     })
     
     it('should have a default value for where', function() {
-      let q = new Query('Model', null)
+      let q = new Query('Model')
+      assert(q.where)
     })
     
-    it('should construct where using id shorthand', function() {
+    it('should construct where using string id shorthand', function() {
       let q = new Query('Model', '7')
       assert.equal(q.where.id, '7')
+    })
+    
+    it('should construct where using number id shorthand', function() {
+      let q = new Query('Model', 7)
+      assert.equal(q.where.id, 7)
     })
     
     it('should construct where using array of ids', function() {
