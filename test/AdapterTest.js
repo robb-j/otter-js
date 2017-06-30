@@ -84,12 +84,6 @@ describe('Adapter', function() {
         testAdapter.addProcessor('where', 'not a function')
       }, /Invalid Processor/)
     })
-    
-    it('should fail if the processor has the wrong arguements', function() {
-      assert.throws(() => {
-        testAdapter.addProcessor('where', (a, b) => {})
-      }, /Invalid Processor/)
-    })
   })
   
   
