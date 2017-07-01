@@ -18,8 +18,12 @@ function assertClass(value, type) {
 }
 
 
+function assertRegex(regex, string) {
+  assert(regex.test(string), `'${string}' does not match ${regex}`)
+}
+
+
 
 module.exports = {
-  getAsyncError: getAsyncError,
-  assertClass: assertClass
+  getAsyncError, assertClass, assertRegex
 }

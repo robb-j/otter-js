@@ -1,6 +1,7 @@
 const assert = require('assert')
 const assExt = require('./assertExtension')
 const Adapter = require('../lib/Adapter')
+const Otter = require('../lib/Otter')
 
 
 describe('Adapter', function() {
@@ -84,7 +85,26 @@ describe('Adapter', function() {
         testAdapter.addProcessor('where', 'not a function')
       }, /Invalid Processor/)
     })
+    
+    it('should add new keys if not present', function() {
+      testAdapter.addProcessor('extra', (k, v, a) => { })
+      assert(testAdapter.processors.extra)
+      assert.equal(testAdapter.processors.extra.length, 1)
+    })
   })
   
   
+  describe('#makeQuery', function() {
+    
+    it('should return a query', function() {
+      let q = testAdapter.makeQuery('TestModel')
+      assExt.assertClass(q, 'Query')
+    })
+    
+    it('should return a query instance if passed one', function() {
+      let q = new Otter.Types.Query()
+      let result = testAdapter.makeQuery('TestModel', q)
+      assert.equal(result, q)
+    })
+  })
 })

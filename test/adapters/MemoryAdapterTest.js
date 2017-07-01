@@ -60,7 +60,7 @@ describe('MemoryAdapter', function() {
       
       await testAdapter.create('TestModel', values)
       
-      assert(testAdapter.store['TestModel'][0])
+      assert(testAdapter.store['TestModel'][1])
     })
     
     it('should return the values of the new models', async function() {
@@ -98,7 +98,7 @@ describe('MemoryAdapter', function() {
       
       await testAdapter.create('TestModel', [values])
       
-      let record = testAdapter.store['TestModel'][0]
+      let record = testAdapter.store['TestModel'][1]
       
       assert.equal(record['clothes.torso'], 'Red Shirt')
       assert.equal(record['clothes.legs'], 'Jeans')
@@ -196,7 +196,7 @@ describe('MemoryAdapter', function() {
       ])
     })
     
-    it('should fail if the model does not exist', async function() {
+    it('should fail if the model is not registered', async function() {
       assert(await assExt.getAsyncError(async () => {
         await testAdapter.find('InvalidModel', {})
       }))
@@ -223,7 +223,7 @@ describe('MemoryAdapter', function() {
       ])
     })
     
-    it('should fail if the model does not exist', async function() {
+    it('should fail if the model is not registered', async function() {
       assert(await assExt.getAsyncError(async () => {
         await testAdapter.update('InvalidModel', {})
       }))
@@ -242,7 +242,7 @@ describe('MemoryAdapter', function() {
   })
   
   
-  describe('#update', function() {
+  describe('#destroy', function() {
     
     beforeEach(async function() {
       await testAdapter.create('TestModel', [
@@ -251,16 +251,21 @@ describe('MemoryAdapter', function() {
       ])
     })
     
-    it('should fail if the model does not exist', async function() {
+    it('should fail if the model is not registered', async function() {
       assert(await assExt.getAsyncError(async () => {
         await testAdapter.destroy('InvalidModel', {})
       }))
     })
     
     it('should remove the value', async function() {
-      await testAdapter.destroy('TestModel', 0)
+      await testAdapter.destroy('TestModel', 1)
       let models = await testAdapter.find('TestModel', {})
       assert.equal(models.length, 1)
+    })
+    
+    it('should return the number of models deleted', async function() {
+      let count = await testAdapter.destroy('TestModel')
+      assert.equal(count, 2)
     })
   })
   
