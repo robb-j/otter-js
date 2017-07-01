@@ -91,6 +91,11 @@ describe('Adapter', function() {
       assert(testAdapter.processors.extra)
       assert.equal(testAdapter.processors.extra.length, 1)
     })
+    
+    it('should return itself for chaining', function() {
+      let rtn = testAdapter.addProcessor('extra', (k, v, a) => { })
+      assert.equal(rtn, testAdapter)
+    })
   })
   
   
