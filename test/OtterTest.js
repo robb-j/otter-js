@@ -294,7 +294,7 @@ describe('Otter', function() {
     it('should fail if an attribute is not valid', async function() {
       
       class Invalid extends Otter.Types.Attribute {
-        validate(Otter) { throw new Error('an error') }
+        validateSelf(Otter) { throw new Error('an error') }
       }
       
       class InvalidModel extends Otter.Types.Model {

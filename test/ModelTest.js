@@ -8,7 +8,7 @@ let LifecycleModelCanBeDestroyed = true
 class LifecycleModel extends Otter.Types.Model {
   constructor(values) { super(values); this.callbacks = {} }
   
-  static attributes() { return { name: String } }
+  static attributes() { return { name: String, pass: 'Secret' } }
   
   willBeSaved() { this.callbacks['willBeSaved'] = true }
   wasSaved() { this.callbacks['wasSaved'] = true }
@@ -16,6 +16,10 @@ class LifecycleModel extends Otter.Types.Model {
   wasDestroyed() { this.callbacks['wasDestroyed'] = true }
   isValid() { return LifecycleModelShouldValidate }
   canBeDestroyed() { return LifecycleModelCanBeDestroyed }
+}
+
+class Secret extends Otter.Types.Attribute {
+  get isProtected() { return true }
 }
 
 describe('Model', function() {
@@ -26,6 +30,7 @@ describe('Model', function() {
     TestOtter = Otter.extend()
     TestModel = class extends LifecycleModel { }
     TestOtter.addModel(TestModel)
+    TestOtter.addAttribute(Secret)
     TestOtter.use(Otter.Plugins.MemoryConnection)
     await TestOtter.start()
   })
@@ -379,7 +384,11 @@ describe('Model', function() {
   describe('#inspect', function() {
     it('should return its values', function() {
       let m = new TestModel({name: 'Geoff'})
-      assert.equal(m.inspect(), m.values)
+      let object = m.inspect()
+      assert.equal(object.id, m.values.id)
+      assert.equal(object.name, m.values.name)
+      assert.equal(object.createdAt, m.values.createdAt)
+      assert.equal(object.updatedAt, m.values.updatedAt)
     })
   })
   
@@ -387,7 +396,11 @@ describe('Model', function() {
   describe('#toJSON', function() {
     it('should return its values', function() {
       let m = new TestModel({name: 'Geoff'})
-      assert.equal(m.toJSON(), m.values)
+      let object = m.toJSON()
+      assert.equal(object.id, m.values.id)
+      assert.equal(object.name, m.values.name)
+      assert.equal(object.createdAt, m.values.createdAt)
+      assert.equal(object.updatedAt, m.values.updatedAt)
     })
   })
   
