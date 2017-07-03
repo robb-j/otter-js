@@ -376,4 +376,20 @@ describe('Model', function() {
   })
   
   
+  describe('#inspect', function() {
+    it('should return its values', function() {
+      let m = new TestModel({name: 'Geoff'})
+      assert.equal(m.inspect(), m.values)
+    })
+  })
+  
+  
+  describe('#toJSON', function() {
+    it('should return its values', function() {
+      let m = new TestModel({name: 'Geoff'})
+      assert.equal(m.toJSON(), m.values)
+    })
+  })
+  
+  
 })
