@@ -323,6 +323,11 @@ describe('Otter', function() {
       assert(/No Adapters added/.test(error.message))
     })
     
+    it('should return itself for chaining', async function() {
+      let rtn = await TestOtter.start()
+      assert.equal(rtn, TestOtter)
+    })
+    
   })
   
 })

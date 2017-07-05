@@ -9,12 +9,15 @@ class TestModel extends Otter.Types.Model {
 
 describe('MemoryAdapter', function() {
   
-  let testAdapter
+  let testAdapter, TestOtter
   
   beforeEach(async function() {
     testAdapter = new MemoryAdapter()
-    testAdapter._models = { TestModel }
-    await testAdapter.setup(null)
+    
+    TestOtter = await Otter.extend().use(o => {
+      o.addAdapter(testAdapter)
+      o.addModel(TestModel)
+    }).start()
   })
   
   
@@ -46,71 +49,6 @@ describe('MemoryAdapter', function() {
   describe('#supportsAttribute', function() {
     it('should support all attributes', function() {
       assert(testAdapter.supportsAttribute(null))
-    })
-  })
-  
-  
-  describe('#create', function() {
-    
-    it('should create a new model', async function() {
-      
-      let values = [
-        { name: 'Geoff' }
-      ]
-      
-      await testAdapter.create('TestModel', values)
-      
-      assert(testAdapter.store['TestModel'][1])
-    })
-    
-    it('should return the values of the new models', async function() {
-      
-      let values = [
-        { name: 'Geoff' },
-        { name: 'Tom' },
-        { name: 'Bob' }
-      ]
-      
-      let records = await testAdapter.create('TestModel', values)
-      
-      assert.equal(records.length, 3)
-      assert.equal(records[0].name, 'Geoff')
-    })
-    
-    it('should add created and updated dates', async function() {
-      
-      let values = [ { name: 'Geoff' } ]
-      
-      let records = await testAdapter.create('TestModel', values)
-      
-      assert(records[0].createdAt)
-      assert(records[0].updatedAt)
-    })
-    
-    it('should nest values using dot notation', async function() {
-      
-      let values = {
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        name: 'Geoff',
-        clothes: { torso: 'Red Shirt', legs: 'Jeans' }
-      }
-      
-      await testAdapter.create('TestModel', [values])
-      
-      let record = testAdapter.store['TestModel'][1]
-      
-      assert.equal(record['clothes.torso'], 'Red Shirt')
-      assert.equal(record['clothes.legs'], 'Jeans')
-    })
-    
-    it('should fail if an unknown type is passed', async function() {
-      
-      let error = await assExt.getAsyncError(async () => {
-        await testAdapter.create('AnotherModel')
-      })
-      
-      assert(/Cannot create unknown Model/.test(error.message))
     })
   })
   
@@ -186,6 +124,65 @@ describe('MemoryAdapter', function() {
   })
   
   
+  describe('#create', function() {
+    
+    it('should create a new model', async function() {
+      
+      let values = [
+        { name: 'Geoff' }
+      ]
+      
+      await testAdapter.create('TestModel', values)
+      
+      assert(testAdapter.store['TestModel'][1])
+    })
+    
+    it('should return the values of the new models', async function() {
+      
+      let values = [
+        { name: 'Geoff' },
+        { name: 'Tom' },
+        { name: 'Bob' }
+      ]
+      
+      let records = await testAdapter.create('TestModel', values)
+      
+      assert.equal(records.length, 3)
+      assert.equal(records[0].name, 'Geoff')
+    })
+    
+    it('should add created and updated dates', async function() {
+      
+      let values = [ { name: 'Geoff' } ]
+      
+      let records = await testAdapter.create('TestModel', values)
+      
+      assert(records[0].createdAt)
+      assert(records[0].updatedAt)
+    })
+    
+    it('should fail if an unknown Models', async function() {
+      
+      let error = await assExt.getAsyncError(() => {
+        return testAdapter.create('AnotherModel', [ { name: 'Geoff' } ])
+      })
+      
+      assert(error)
+      assert(/unknown Model/.test(error.message))
+    })
+    
+    it('should fail for unknown values', async function() {
+      
+      let error = await assExt.getAsyncError(() => {
+        return testAdapter.create('TestModel', [ { age: 7 } ])
+      })
+      
+      assert(error)
+      assExt.assertRegex(/unknown Attribute/, error.message)
+    })
+  })
+  
+  
   describe('#find', function() {
     
     beforeEach(async function() {
@@ -210,6 +207,14 @@ describe('MemoryAdapter', function() {
     it('should return all values if no query is passed', async function() {
       let res = await testAdapter.find('TestModel')
       assert.equal(res.length, 3)
+    })
+    
+    it('should fail for invalid queries', async function() {
+      let error = await assExt.getAsyncError(() => {
+        return testAdapter.find('TestModel', { age: 7 })
+      })
+      assert(error)
+      assExt.assertRegex(/unknown Attribute/, error.message)
     })
   })
   
@@ -239,6 +244,22 @@ describe('MemoryAdapter', function() {
       let models = await testAdapter.update('TestModel', 1, { name: 'Terry' })
       assert.equal(models.length, 1)
     })
+    
+    it('should fail for unknown queries', async function() {
+      let error = await assExt.getAsyncError(() => {
+        return testAdapter.update('TestModel', { age: 7 }, { name: 'Terry' })
+      })
+      assert(error)
+      assExt.assertRegex(/unknown Attribute/, error.message)
+    })
+    
+    it('should fail for unknown values', async function() {
+      let error = await assExt.getAsyncError(() => {
+        return testAdapter.update('TestModel', 1, { age: 7 })
+      })
+      assert(error)
+      assExt.assertRegex(/unknown Attribute/, error.message)
+    })
   })
   
   
@@ -266,6 +287,14 @@ describe('MemoryAdapter', function() {
     it('should return the number of models deleted', async function() {
       let count = await testAdapter.destroy('TestModel')
       assert.equal(count, 2)
+    })
+    
+    it('should fail for unknown queries', async function() {
+      let error = await assExt.getAsyncError(() => {
+        return testAdapter.destroy('TestModel', { age: 7 })
+      })
+      assert(error)
+      assExt.assertRegex(/unknown Attribute/, error.message)
     })
   })
   
