@@ -2,20 +2,11 @@ const assert = require('assert')
 const assExt = require('./assertExtension')
 const Otter = require('../lib/Otter')
 
-let LifecycleModelShouldValidate = true
-let LifecycleModelCanBeDestroyed = true
 
-class LifecycleModel extends Otter.Types.Model {
+class BaseTestModel extends Otter.Types.Model {
   constructor(values) { super(values); this.callbacks = {} }
   
   static attributes() { return { name: String, pass: 'Secret' } }
-  
-  willBeSaved() { this.callbacks['willBeSaved'] = true }
-  wasSaved() { this.callbacks['wasSaved'] = true }
-  willBeDestroyed() { this.callbacks['willBeDestroyed'] = true }
-  wasDestroyed() { this.callbacks['wasDestroyed'] = true }
-  isValid() { return LifecycleModelShouldValidate }
-  canBeDestroyed() { return LifecycleModelCanBeDestroyed }
 }
 
 class Secret extends Otter.Types.Attribute {
@@ -28,7 +19,7 @@ describe('Model', function() {
   
   beforeEach(async function() {
     TestOtter = Otter.extend()
-    TestModel = class extends LifecycleModel { }
+    TestModel = class extends BaseTestModel { }
     TestOtter.addModel(TestModel)
     TestOtter.addAttribute(Secret)
     TestOtter.use(Otter.Plugins.MemoryConnection)
@@ -118,16 +109,6 @@ describe('Model', function() {
       assExt.assertClass(people[0], 'TestModel')
       assert.equal(people[0].name, 'Geoff')
       assert.equal(people[1].name, 'Terrance')
-    })
-    
-    it('should call wasSaved', async function() {
-      let people = await TestModel.createMany([
-        { name: 'Geoff' },
-        { name: 'Terrance' }
-      ])
-      
-      assert.equal(people[0].callbacks['wasSaved'], true)
-      assert.equal(people[1].callbacks['wasSaved'], true)
     })
   })
   
@@ -294,30 +275,6 @@ describe('Model', function() {
       assert(error)
       assExt.assertRegex(/Cannot update/, error.message)
     })
-    
-    it('should call willBeSaved', async function() {
-      let m = new TestModel({ name: 'Geoff' })
-      await m.save()
-      assert(m.callbacks['willBeSaved'])
-    })
-    
-    it('should fail if validation fails', async function() {
-      LifecycleModelShouldValidate = false
-      let m = new TestModel({ name: 'Geoff' })
-      let error = await assExt.getAsyncError(() => {
-        return m.save()
-      })
-      
-      assert(error)
-      assExt.assertRegex(/validation failed/, error.message)
-      LifecycleModelShouldValidate = true
-    })
-    
-    it('should call wasSaved', async function() {
-      let m = new TestModel({ name: 'Geoff' })
-      await m.save()
-      assert(m.callbacks['wasSaved'])
-    })
   })
   
   
@@ -353,30 +310,6 @@ describe('Model', function() {
       
       assert(error)
       assExt.assertRegex(/that doesn't exist/, error.message)
-    })
-    
-    it('should call willBeDestroyed', async function() {
-      let m = await TestModel.create({ name: 'Geoff' })
-      await m.destroy()
-      assert(m.callbacks['willBeDestroyed'])
-    })
-    
-    it('should fail if canBeDestroyed returns false', async function() {
-      LifecycleModelCanBeDestroyed = false
-      let m = await TestModel.create({ name: 'Geoff' })
-      let error = await assExt.getAsyncError(() => {
-        return m.destroy()
-      })
-      
-      assert(error)
-      assExt.assertRegex(/canBeDestroyed returned false/, error.message)
-      LifecycleModelCanBeDestroyed = true
-    })
-    
-    it('should call wasDestroyed', async function() {
-      let m = await TestModel.create({ name: 'Geoff' })
-      await m.destroy()
-      assert(m.callbacks['willBeDestroyed'])
     })
   })
   
