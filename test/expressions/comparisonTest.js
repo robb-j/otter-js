@@ -3,11 +3,15 @@ const notExpr = require('../../lib/expressions/comparison')
 
 describe('ComparisonExpression', function() {
   it('should fail if not an object', function() {
-    let value = notExpr('not an object', 'string')
+    let value = notExpr('not an object', 'number')
+    assert.equal(value, false)
+  })
+  it('should fail if not checking numbers', function() {
+    let value = notExpr({'<': 5}, 'string')
     assert.equal(value, false)
   })
   it('should fail with no keys', function() {
-    let value = notExpr({}, 'string')
+    let value = notExpr({}, 'number')
     assert.equal(value, false)
   })
   it('should fail with incorect operator', function() {

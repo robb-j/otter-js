@@ -98,7 +98,6 @@ describe('Adapter', function() {
     let testAdapter, TestOtter
     
     class FailingAttr extends Otter.Types.Attribute {
-      validateQueryValue(value) { throw new Error('Attribute is invalid') }
       validateModelValue(value) { throw new Error('Attribute is invalid') }
     }
     class ModelA extends Otter.Types.Model {

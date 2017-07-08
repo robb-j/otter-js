@@ -82,6 +82,13 @@ describe('Query', function() {
       assert(q.processed)
       assert(q.processed.name)
     })
+    
+    it('should fail if unknow expression', function() {
+      let q = new Query('TestModel', { name: { 'random': 'Geoff' } })
+      assert.throws(() => {
+        q.validateOn(TestModel.schema)
+      }, /Unrecognised query expression/)
+    })
   })
   
   
