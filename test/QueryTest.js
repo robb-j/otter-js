@@ -1,7 +1,21 @@
 const assert = require('assert')
-const Query = require('../lib/Query')
+const Otter = require('../lib/Otter')
+const { Query } = Otter.Types
 
 describe('Query', function() {
+  
+  let TestOtter, TestModel
+  
+  beforeEach(async function() {
+    TestOtter = Otter.extend()
+    TestModel = class extends Otter.Types.Model {
+      static attributes() { return { name: String } }
+    }
+    TestOtter.use(Otter.Plugins.MemoryConnection)
+    TestOtter.addModel(TestModel)
+    await TestOtter.start()
+  })
+  
   
   describe('#constructor', function() {
     
@@ -52,6 +66,33 @@ describe('Query', function() {
       assert.equal(q.limit, 'c')
       assert.equal(q.pluck, 'd')
     })
+  })
+  
+  
+  describe('#validateOn', function() {
     
+    it('should pass if all attributes are valid', function() {
+      let q = new Query('TestModel', { name: {'!': 'Geoff'} })
+      q.validateOn(TestModel.schema)
+    })
+    
+    it('should processes the query', function() {
+      let q = new Query('TestModel', { name: { '!': 'Geoff' } })
+      q.validateOn(TestModel.schema)
+      assert(q.processed)
+      assert(q.processed.name)
+    })
+  })
+  
+  
+  describe('#validateExpr', function() {
+    
+    it('should store the type', function() {
+      let expr = { '!': 'Geoff' }
+      let q = new Query('TestModel', { name: expr })
+      q.validateOn(TestModel.schema)
+      assert.equal(q.processed.name.type, 'not')
+      assert.deepEqual(q.processed.name.expr, expr)
+    })
   })
 })

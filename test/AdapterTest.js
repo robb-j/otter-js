@@ -143,12 +143,6 @@ describe('Adapter', function() {
           testAdapter.validateModelQuery(q)
         }, /unknown Attribute/)
       })
-      it('should fail if attribute fails', function() {
-        let q = new Otter.Types.Query('ModelB', { name: 5 })
-        assert.throws(() => {
-          testAdapter.validateModelQuery(q)
-        }, /Attribute is invalid/)
-      })
     })
     
     describe('#validateModelValues', function() {
