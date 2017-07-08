@@ -2,7 +2,6 @@ const assert = require('assert')
 const assExt = require('./assertExtension')
 const Otter = require('../lib/Otter')
 
-
 class TestModel extends Otter.Types.Model {}
 class TestAttribute extends Otter.Types.Attribute {}
 
@@ -62,7 +61,6 @@ describe('Otter', function() {
         TestOtter.active.queryBuilders
       )
     })
-    
   })
   
   
@@ -159,6 +157,22 @@ describe('Otter', function() {
       assert.throws(() => {
         TestOtter.addQueryBuilder(builder)
       }, /Invalid QueryBuilder Parameters/)
+    })
+  })
+  
+  
+  describe('#addQueryExpr', function() {
+    
+    it('should store the expr', function() {
+      let expr = (value, type) => { }
+      TestOtter.addQueryExpr('myType', expr)
+      assert.equal(TestOtter.active.exprs.myType, expr)
+    })
+    
+    it('should fail if not a function', function() {
+      assert.throws(() => {
+        TestOtter.addQueryExpr('type', 'not an expr')
+      }, /Invalid QueryExpr/)
     })
   })
   
@@ -328,6 +342,17 @@ describe('Otter', function() {
       assert.equal(rtn, TestOtter)
     })
     
+    it('should add exprs to Query', async function() {
+      let expr = (value, type) => { }
+      TestOtter.addQueryExpr('myType', expr)
+      await TestOtter.start()
+      assert.equal(Otter.Types.Query.exprs.myType, expr)
+    })
+    
+    it('should register default expressions', async function() {
+      await TestOtter.start()
+      assert(Object.keys(Otter.Types.Query.exprs).length > 0)
+    })
   })
   
 })
