@@ -20,7 +20,6 @@ describe('MemoryAdapter', function() {
     }).start()
   })
   
-  
   describe('#setup', function() {
     it('should create a store', async function() {
       assert(testAdapter.store)
@@ -37,7 +36,6 @@ describe('MemoryAdapter', function() {
     })
   })
   
-  
   describe('#teardown', function() {
     it('should destroy the store', async function() {
       await testAdapter.teardown()
@@ -45,33 +43,11 @@ describe('MemoryAdapter', function() {
     })
   })
   
-  
   describe('#supportsAttribute', function() {
     it('should support all attributes', function() {
       assert(testAdapter.supportsAttribute(null))
     })
   })
-  
-  
-  describe('#processComparison', function() {
-    it('should processes equality', function() {
-      let matched = testAdapter.processComparison('a', { a: 7 }, 7)
-      assert.equal(matched, true)
-    })
-    it('should not ignore type', function() {
-      let matched = testAdapter.processComparison('a', { a: 7 }, '7')
-      assert.equal(matched, false)
-    })
-    it('should not ignore type', function() {
-      let matched = testAdapter.processComparison('a', { a: 7 }, '7')
-      assert.equal(matched, false)
-    })
-    it('should perform set includes', function() {
-      let matched = testAdapter.processComparison('a', {a: 7}, [7, 1])
-      assert.equal(matched, true)
-    })
-  })
-  
   
   describe('#processQuery', function() {
     
@@ -84,11 +60,13 @@ describe('MemoryAdapter', function() {
     
     it('should match all by default', function() {
       let q = new Otter.Types.Query('TestModel')
+      testAdapter.validateModelQuery(q)
       let res = testAdapter.processQuery(q)
       assert.equal(res.length, 2)
     })
     it('should match records', function() {
       let q = new Otter.Types.Query('TestModel', { name: 'Bob' })
+      testAdapter.validateModelQuery(q)
       let res = testAdapter.processQuery(q)
       assert.equal(res[0].name, 'Bob')
     })
@@ -99,6 +77,20 @@ describe('MemoryAdapter', function() {
     })
   })
   
+  describe('#evaluateExpr', function() {
+    
+    it('should throw for invalid expressions', function() {
+      assert.throws(() => {
+        let expr = { type: 'invalid', expr: {} }
+        testAdapter.evaluateExpr(expr, {})
+      }, /Unsupported expression/)
+    })
+    it('should process the expression', function() {
+      let expr = { type: 'value', expr: 7 }
+      let val = testAdapter.evaluateExpr(expr, 7)
+      assert.equal(val, true)
+    })
+  })
   
   describe('#checkModelName', function() {
     it('should throw an error for an unknown model', async function() {
@@ -114,7 +106,6 @@ describe('MemoryAdapter', function() {
       assert.equal(error, null)
     })
   })
-  
   
   describe('#create', function() {
     it('should create a new model', async function() {
@@ -169,7 +160,6 @@ describe('MemoryAdapter', function() {
     })
   })
   
-  
   describe('#find', function() {
     
     beforeEach(async function() {
@@ -201,7 +191,6 @@ describe('MemoryAdapter', function() {
       assExt.assertRegex(/unknown Attribute/, error.message)
     })
   })
-  
   
   describe('#update', function() {
     
@@ -241,7 +230,6 @@ describe('MemoryAdapter', function() {
       assExt.assertRegex(/unknown Attribute/, error.message)
     })
   })
-  
   
   describe('#destroy', function() {
     
