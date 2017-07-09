@@ -31,13 +31,6 @@ describe('Adapter', function() {
     it('should setup a store for processors', function() {
       assert(testAdapter.processors)
     })
-    it('should setup processor stores for default types', function() {
-      assert(testAdapter.processors.where)
-      assert(testAdapter.processors.sort)
-      assert(testAdapter.processors.create)
-      assert(testAdapter.processors.limit)
-      assert(testAdapter.processors.pluck)
-    })
   })
   
   describe('#supportsAttribute', function() {
