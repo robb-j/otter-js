@@ -66,6 +66,12 @@ describe('Query', function() {
       assert.equal(q.limit, 'c')
       assert.equal(q.pluck, 'd')
     })
+    
+    it('should fail array shorthand is not strings', function() {
+      assert.throws(() => {
+        let q = new Query('ModelName', [ '1', 2 ])
+      }, /must be strings/)
+    })
   })
   
   
