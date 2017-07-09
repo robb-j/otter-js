@@ -11,8 +11,8 @@ services:
     links:
       - mongo
     environment:
-      MONGO_URL: 'mysql'
-    command: node node_modules/.bin/nodemon --debug=0.0.0.0:5858 --watch web web/server.js
+      MONGO_URL: 'monogo'
+    command: node node_modules/.bin/nodemon --watch web web/server.js
 
   mongo:
     image: mongo:latest
