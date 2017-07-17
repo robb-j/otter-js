@@ -84,6 +84,10 @@ describe('Adapter', function() {
       let result = testAdapter.makeQuery('TestModel', q)
       assert.equal(result, q)
     })
+    it('should set the options on the query', function() {
+      let q = testAdapter.makeQuery('TestModel', '77', { limit: 7 })
+      assert.equal(q.limit, 7)
+    })
   })
   
   describe('(validation)', function() {

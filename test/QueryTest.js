@@ -57,11 +57,11 @@ describe('Query', function() {
       assert.equal(q.where.a, 100)
     })
     
-    it('should deconstruct reserved keys', function() {
-      let q = new Query('Model', {
-        where: 'a', sort: 'b', limit: 'c', pluck: 'd'
+    it('should deconstruct options param', function() {
+      let q = new Query('Model', 'a', {
+        sort: 'b', limit: 'c', pluck: 'd'
       })
-      assert.equal(q.where, 'a')
+      
       assert.equal(q.sort, 'b')
       assert.equal(q.limit, 'c')
       assert.equal(q.pluck, 'd')

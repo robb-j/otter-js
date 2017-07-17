@@ -71,7 +71,7 @@ describe('MemoryAdapter', function() {
       assert.equal(res[0].name, 'Bob')
     })
     it('should cut of after limit', function() {
-      let q = new Otter.Types.Query('TestModel', { limit: 1 })
+      let q = new Otter.Types.Query('TestModel', {}, { limit: 1 })
       let res = testAdapter.processQuery(q)
       assert.equal(res.length, 1)
     })
