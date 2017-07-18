@@ -86,7 +86,7 @@ describe('MemoryAdapter', function() {
       }, /Unsupported expression/)
     })
     it('should process the expression', function() {
-      let expr = { type: 'value', expr: 7 }
+      let expr = { type: 'equality', expr: 7 }
       let val = testAdapter.evaluateExpr(expr, 7)
       assert.equal(val, true)
     })

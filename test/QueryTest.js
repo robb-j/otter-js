@@ -104,7 +104,7 @@ describe('Query', function() {
       let expr = { '!': 'Geoff' }
       let q = new Query('TestModel', { name: expr })
       q.validateOn(TestModel.schema)
-      assert.equal(q.processed.name.type, 'not')
+      assert.equal(q.processed.name.type, 'inequality')
       assert.deepEqual(q.processed.name.expr, expr)
     })
   })

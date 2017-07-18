@@ -1,7 +1,7 @@
 const assert = require('assert')
-const notExpr = require('../../lib/expressions/not')
+const notExpr = require('../../lib/expressions/inequality')
 
-describe('NotExpression', function() {
+describe('InequalityExpression', function() {
   it('should fail if not an object', function() {
     let value = notExpr('not an object', 'string')
     assert.equal(value, false)

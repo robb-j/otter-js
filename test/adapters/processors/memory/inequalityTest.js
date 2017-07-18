@@ -1,7 +1,7 @@
 const assert = require('assert')
-const not = require('../../../../lib/adapters/processors/memory/not')
+const not = require('../../../../lib/adapters/processors/memory/inequality')
 
-describe('NotMemoryProcessor', function() {
+describe('InequalityMemoryProcessor', function() {
   it('should fail if equal', function() {
     let expr = { '!': 7 }
     let value = 7
