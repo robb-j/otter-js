@@ -1,5 +1,9 @@
 const assert = require('assert')
 const assExt = require('../assertExtension')
+
+// Mock mongo
+require('mock-require')('mongodb', '../spies/mongoSpy')
+
 const MongoAdapter = require('../../lib/adapters/MongoAdapter')
 const Otter = require('../../lib/Otter')
 
@@ -13,17 +17,15 @@ class MockMongoAdapter extends MongoAdapter {
 
 describe.only('MongoAdapter', function() {
   
-  // let testAdapter, TestOtter
-  //
-  // beforeEach(async function() {
-  //   testAdapter = new MongoAdapter()
-  //   console.log(this)
-  //
-  //   TestOtter = await Otter.extend().use(o => {
-  //     o.addAdapter(testAdapter)
-  //     o.addModel(TestModel)
-  //   })
-  // })
+  let testAdapter, TestOtter
+  
+  beforeEach(async function() {
+    testAdapter = new MongoAdapter({ url: 'localhost' })
+    TestOtter = await Otter.extend().use(o => {
+      o.addAdapter(testAdapter)
+      o.addModel(TestModel)
+    })
+  })
   
   
   describe('#constructor', function() {
@@ -39,5 +41,16 @@ describe.only('MongoAdapter', function() {
       assert.equal(a.db, null)
     })
   })
+  
+  
+  // describe('#setup', function() {
+  //
+  //   it('should do ...', async function() {
+  //
+  //
+  //
+  //   })
+  //
+  // })
   
 })
