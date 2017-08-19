@@ -30,6 +30,7 @@
     "istanbul": "^0.4.5",
     "lodash": "^4.17.4",
     "mocha": "^3.4.2",
+    "mongo-in-memory": "0.0.5",
     "mongodb": "^2.2.30",
     "nodemon": "^1.11.0",
     "nyc": "^11.0.2",
