@@ -1,9 +1,5 @@
 const assert = require('assert')
 const assExt = require('../assertExtension')
-
-// Mock mongo
-require('mock-require')('mongodb', '../spies/mongoSpy')
-
 const MongoAdapter = require('../../lib/adapters/MongoAdapter')
 const MongoInMemory = require('mongo-in-memory')
 const MongoClient = require('mongodb').MongoClient
@@ -13,7 +9,7 @@ class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String } }
 }
 
-describe.only('MongoAdapter', function() {
+describe('MongoAdapter', function() {
   
   let memServer, dbUrl
   let dbIndex = 0
