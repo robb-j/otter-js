@@ -157,7 +157,6 @@ describe('MongoAdapter', function() {
   
   /* Adapter Interface Tests */
   describe('#create', function() {
-    
     it('should return the new records', async function() {
       let records = await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
       assert.equal(records.length, 1)
