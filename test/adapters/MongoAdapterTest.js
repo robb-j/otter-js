@@ -4,6 +4,7 @@ const MongoAdapter = require('../../lib/adapters/MongoAdapter')
 const MongoInMemory = require('mongo-in-memory')
 const MongoClient = require('mongodb').MongoClient
 const Otter = require('../../lib/Otter')
+const StringAttr = require('../../lib/attributes/StringAttribute')
 
 class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String } }
@@ -182,6 +183,71 @@ describe('MongoAdapter', function() {
       let db = await MongoClient.connect(dbUrl)
       let records = await db.collection('TestModel').find().toArray()
       assert.equal(records.length, 1)
+    })
+  })
+  
+  describe('#find', function() {
+    beforeEach(async function() {
+      await testAdapter.create('TestModel', [
+        { name: 'Geoff' },
+        { name: 'Mark' },
+        { name: 'Trevor' },
+        { name: 'John' }
+      ])
+    })
+    
+    it('should return matches', async function() {
+      let records = await testAdapter.find('TestModel', { name: 'Mark' })
+      assert(records)
+      assert(records[0])
+      assert(records[0].name)
+      assert.equal(records[0].name, 'Mark')
+    })
+    it('should apply limits', async function() {
+      let query = { name: /r/ }
+      let opts = { limit: 1 }
+      let records = await testAdapter.find('TestModel', query, opts)
+      assert(records)
+      assert.equal(records.length, 1)
+    })
+  })
+  
+  describe('#update', function() {})
+  
+  describe('#destroy', function() {})
+  
+  
+  
+  /* Query Processing */
+  describe('#genMongoQuery', function() {
+    it('should process to mongo query', async function() {
+      let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
+      query.validateOn(TestModel.schema)
+      let mq = testAdapter.genMongoQuery(query)
+      assert(mq)
+      assert(mq.name)
+      assert.equal(mq.name, 'Mark')
+    })
+  })
+  
+  describe('#evaluateExpr', function() {
+    it('should use processors', async function() {
+      let called = false
+      testAdapter.processors.equality = (a, b) => {
+        called = true
+      }
+      let attr = TestModel.schema.name
+      let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
+      query.validateOn(TestModel.schema)
+      testAdapter.evaluateExpr(attr, query.processed.name)
+      assert(called)
+    })
+    it('should fail for invalid expressions', async function() {
+      let attr = TestModel.schema.name
+      let expr = { type: 'unknown' }
+      assert.throws(() => {
+        testAdapter.evaluateExpr(attr, expr)
+      }, /Unsupported expression/)
     })
   })
 })
