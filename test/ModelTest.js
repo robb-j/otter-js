@@ -268,13 +268,8 @@ describe('Model', function() {
       assert.equal(m.adapter.store.TestModel[1].name, 'Terrance')
     })
     it('should fail updating a model that does not exist', async function() {
-      
       let m = new TestModel({ id: 1, name: 'Geoff' })
-      
-      let error = await assExt.getAsyncError(() => {
-        return m.save()
-      })
-      
+      let error = await assExt.getAsyncError(() => { return m.save() })
       assert(error)
       assExt.assertRegex(/Cannot update/, error.message)
     })
