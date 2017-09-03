@@ -220,8 +220,9 @@ describe('MongoAdapter', function() {
         { name: 'John', age: 32 }
       ])
     })
+    
     it('should return the number of updated records', async function() {
-      let q = { name: /o/g }
+      let q = { name: /o/ }
       let n = await testAdapter.update('TestModel', q, { age: 42 })
       assert.equal(n, 3)
     })
@@ -233,7 +234,7 @@ describe('MongoAdapter', function() {
       assert.equal(models[0].age, 8)
     })
     it('should update multiple records', async function() {
-      let q = { name: /o/g }
+      let q = { name: /o/ }
       await testAdapter.update('TestModel', q, { age: 42 })
       let models = await testAdapter.find('TestModel', q)
       assert.equal(models.length, 3)
@@ -243,7 +244,34 @@ describe('MongoAdapter', function() {
     })
   })
   
-  describe('#destroy', function() {})
+  describe('#destroy', function() {
+    beforeEach(async function() {
+      await testAdapter.create('TestModel', [
+        { name: 'Geoff', age: 7 },
+        { name: 'Mark', age: 21 },
+        { name: 'Trevor', age: 19 },
+        { name: 'John', age: 32 }
+      ])
+    })
+    
+    it('should remove a single record', async function() {
+      let q = { name: 'Geoff' }
+      await testAdapter.destroy('TestModel', q)
+      let models = await testAdapter.find('TestModel', q)
+      assert.equal(models.length, 0)
+    })
+    it('should remove multiple records', async function() {
+      let q = { name: /o/ }
+      await testAdapter.destroy('TestModel', q)
+      let models = await testAdapter.find('TestModel')
+      assert.equal(models.length, 1)
+    })
+    it('should return the number of deleted records', async function() {
+      let q = { name: /o/ }
+      let n = await testAdapter.destroy('TestModel', q)
+      assert.equal(n, 3)
+    })
+  })
   
   
   
