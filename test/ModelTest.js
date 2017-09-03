@@ -90,30 +90,24 @@ describe('Model', function() {
   /* * * STATIC QUERYING * * */
   
   describe('::create', function() {
-    it('should return a new record', async function() {
+    it('should create a new record', async function() {
       let geoff = await TestModel.create({ name: 'Geoff' })
       assert(geoff)
       assert.equal(geoff.name, 'Geoff')
     })
-  })
-  
-  describe('::createMany', function() {
-    it('should create multiple models', async function() {
-      let people = await TestModel.createMany([
-        { name: 'Geoff' },
-        { name: 'Terrance' }
+    it('should create multiple records', async function() {
+      let models = await TestModel.create([
+        { name: 'Tom' },
+        { name: 'Bob' }
       ])
-      
-      assert.equal(people.length, 2)
-      assExt.assertClass(people[0], 'TestModel')
-      assert.equal(people[0].name, 'Geoff')
-      assert.equal(people[1].name, 'Terrance')
+      assert(Array.isArray(models))
+      assert.equal(models.length, 2)
     })
   })
   
   describe('::find', function() {
     it('should return matching models', async function() {
-      await TestModel.createMany([
+      await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
@@ -126,7 +120,7 @@ describe('Model', function() {
   
   describe('::findOne', function() {
     it('should return the first match', async function() {
-      await TestModel.createMany([
+      await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
@@ -139,7 +133,7 @@ describe('Model', function() {
   
   describe('::destroy', function() {
     it('should remove matching models', async function() {
-      await TestModel.createMany([
+      await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
@@ -152,7 +146,7 @@ describe('Model', function() {
   
   describe('::update', function() {
     beforeEach(async function() {
-      await TestModel.createMany([
+      await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])

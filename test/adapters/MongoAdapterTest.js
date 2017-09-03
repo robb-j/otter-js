@@ -7,7 +7,7 @@ const Otter = require('../../lib/Otter')
 const StringAttr = require('../../lib/attributes/StringAttribute')
 
 class TestModel extends Otter.Types.Model {
-  static attributes() { return { name: String } }
+  static attributes() { return { name: String, age: Number } }
 }
 
 describe('MongoAdapter', function() {
@@ -211,7 +211,37 @@ describe('MongoAdapter', function() {
     })
   })
   
-  describe('#update', function() {})
+  describe('#update', function() {
+    beforeEach(async function() {
+      await testAdapter.create('TestModel', [
+        { name: 'Geoff', age: 7 },
+        { name: 'Mark', age: 21 },
+        { name: 'Trevor', age: 19 },
+        { name: 'John', age: 32 }
+      ])
+    })
+    it('should return the number of updated records', async function() {
+      let q = { name: /o/g }
+      let n = await testAdapter.update('TestModel', q, { age: 42 })
+      assert.equal(n, 3)
+    })
+    it('should update a single record', async function() {
+      let q = { name: 'Geoff' }
+      await testAdapter.update('TestModel', q, { age: 8 })
+      let models = await testAdapter.find('TestModel', q)
+      assert(models[0])
+      assert.equal(models[0].age, 8)
+    })
+    it('should update multiple records', async function() {
+      let q = { name: /o/g }
+      await testAdapter.update('TestModel', q, { age: 42 })
+      let models = await testAdapter.find('TestModel', q)
+      assert.equal(models.length, 3)
+      assert.equal(models[0].age, 42)
+      assert.equal(models[1].age, 42)
+      assert.equal(models[2].age, 42)
+    })
+  })
   
   describe('#destroy', function() {})
   

@@ -211,9 +211,9 @@ describe('MemoryAdapter', function() {
       let models = await testAdapter.find('TestModel', 1)
       assert.equal(models[0].name, 'Terry')
     })
-    it('should return updated values', async function() {
-      let models = await testAdapter.update('TestModel', 1, { name: 'Terry' })
-      assert.equal(models.length, 1)
+    it('should return updated record count', async function() {
+      let n = await testAdapter.update('TestModel', 1, { name: 'Terry' })
+      assert.equal(n, 1)
     })
     it('should fail for unknown queries', async function() {
       let error = await assExt.getAsyncError(() => {

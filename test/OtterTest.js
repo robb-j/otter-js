@@ -53,14 +53,6 @@ describe('Otter', function() {
       let AnotherOtter = TestOtter.extend()
       assert.notEqual(AnotherOtter.active.adapters, TestOtter.active.adapters)
     })
-    
-    it('should shallow copy queryBuilders', function() {
-      let AnotherOtter = TestOtter.extend()
-      assert.notEqual(
-        AnotherOtter.active.queryBuilders,
-        TestOtter.active.queryBuilders
-      )
-    })
   })
   
   
@@ -133,30 +125,6 @@ describe('Otter', function() {
     
     it('should return itself for chaining', function() {
       assert(TestOtter.addAttribute(TestAttribute), TestOtter)
-    })
-  })
-  
-  
-  describe('#addQueryBuilder', function() {
-    
-    it('should store the query builder', function() {
-      let builder = (input, query) => { }
-      TestOtter.addQueryBuilder(builder)
-      assert.equal(TestOtter.active.queryBuilders.length, 1)
-    })
-    
-    it('should fail if not a function', function() {
-      let builder = 'bob'
-      assert.throws(() => {
-        TestOtter.addQueryBuilder(builder)
-      }, /Invalid QueryBuilder/)
-    })
-    
-    it('should fail if not a function', function() {
-      let builder = (a) => {}
-      assert.throws(() => {
-        TestOtter.addQueryBuilder(builder)
-      }, /Invalid QueryBuilder Parameters/)
     })
   })
   
