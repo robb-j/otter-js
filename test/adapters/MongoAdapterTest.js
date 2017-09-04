@@ -187,7 +187,7 @@ describe('MongoAdapter', function() {
   
   describe('#find', function() {
     beforeEach(async function() {
-      await testAdapter.create('TestModel', [
+      await TestModel.create([
         { name: 'Geoff' },
         { name: 'Mark' },
         { name: 'Trevor' },
@@ -213,7 +213,7 @@ describe('MongoAdapter', function() {
   
   describe('#update', function() {
     beforeEach(async function() {
-      await testAdapter.create('TestModel', [
+      await TestModel.create([
         { name: 'Geoff', age: 7 },
         { name: 'Mark', age: 21 },
         { name: 'Trevor', age: 19 },
@@ -246,7 +246,7 @@ describe('MongoAdapter', function() {
   
   describe('#destroy', function() {
     beforeEach(async function() {
-      await testAdapter.create('TestModel', [
+      await TestModel.create([
         { name: 'Geoff', age: 7 },
         { name: 'Mark', age: 21 },
         { name: 'Trevor', age: 19 },
