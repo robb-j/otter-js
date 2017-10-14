@@ -16,30 +16,25 @@
   "author": "robb-j",
   "license": "ISC",
   "dependencies": {
-    "apidoc": "^0.17.6",
-    "body-parser": "^1.17.2",
     "clone": "^2.1.1",
+    "mongodb": "^2.2.30",
+    "require-directory": "^2.1.1"
+  },
+  "devDependencies": {
+    "apidoc": "^0.17.6",
+    "chai": "^4.1.2",
     "eslint": "^4.1.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.6.0",
     "eslint-plugin-node": "^5.1.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "express": "^4.15.3",
-    "express-validator": "^3.2.0",
     "istanbul": "^0.4.5",
-    "lodash": "^4.17.4",
     "mocha": "^3.4.2",
+    "mock-require": "^2.0.2",
     "mongo-in-memory": "0.0.5",
-    "mongodb": "^2.2.30",
     "nodemon": "^1.11.0",
     "nyc": "^11.0.2",
-    "require-directory": "^2.1.1",
-    "supertest": "^3.0.0",
-    "uuid": "^3.1.0",
-    "winston": "^2.3.1"
-  },
-  "devDependencies": {
-    "mock-require": "^2.0.2"
+    "supertest": "^3.0.0"
   }
 }
