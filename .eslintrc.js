@@ -25,7 +25,7 @@ module.exports = {
     'padded-blocks': 'off',
     'brace-style': ["error", "stroustrup", { "allowSingleLine": true } ],
     'no-multiple-empty-lines': 'off',
-    'no-unused-vars': 'off',
+    'no-unused-vars': 'warn',
     'space-before-function-paren': ['error', {
       'anonymous': 'never',
       'named': 'never',
