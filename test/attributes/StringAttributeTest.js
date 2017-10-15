@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const StringAttribute = require('../../lib/attributes/StringAttribute')
 
 describe('StringAttribute', function() {
@@ -7,7 +6,7 @@ describe('StringAttribute', function() {
   describe('#valueType', function() {
     it('should be string', function() {
       let attr = new StringAttribute()
-      assert.equal(attr.valueType, 'string')
+      expect(attr.valueType).to.equal('string')
     })
   })
   

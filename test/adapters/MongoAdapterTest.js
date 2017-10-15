@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const MongoAdapter = require('../../lib/adapters/MongoAdapter')
 const MongoInMemory = require('mongo-in-memory')
 const MongoClient = require('mongodb').MongoClient
@@ -48,19 +47,19 @@ describe('MongoAdapter', function() {
   /* Lifecycle Tests */
   describe('#constructor', function() {
     it('should require a url', function() {
-      assert.throws(() => {
-        let a = new MongoAdapter()
-      }, /requires a 'url'/)
+      /* eslint-disable no-new */
+      let createInvalidAdapter = () => { new MongoAdapter() }
+      expect(createInvalidAdapter).to.throw(/requires a 'url'/)
     })
     it('should set db to null', function() {
       let a = new MongoAdapter({ url: 'invalid_url' })
-      assert.equal(a.db, null)
+      expect(a).to.have.property('db').that.equals(null)
     })
   })
   
   describe('#setup', function() {
     it('should store the db', function() {
-      assert(testAdapter.db)
+      expect(testAdapter.db).to.exist
     })
   })
   
@@ -79,22 +78,22 @@ describe('MongoAdapter', function() {
     })
     
     it('should unpack _id', function() {
-      assert.equal(r.id, 'a')
+      expect(r.id).to.equal('a')
     })
     it('should unpack _createdAt', function() {
-      assert.equal(r.createdAt, 'b')
+      expect(r.createdAt).to.equal('b')
     })
     it('should unpack _updatedAt', function() {
-      assert.equal(r.updatedAt, 'c')
+      expect(r.updatedAt).to.equal('c')
     })
     it('should remove _id', function() {
-      assert.equal(r._id, undefined)
+      expect(r._id).to.equal(undefined)
     })
     it('should remove _createdAt', function() {
-      assert.equal(r._createdAt, undefined)
+      expect(r._createdAt).to.equal(undefined)
     })
     it('should remove _updatedAt', function() {
-      assert.equal(r._updatedAt, undefined)
+      expect(r._updatedAt).to.equal(undefined)
     })
   })
   
@@ -107,22 +106,22 @@ describe('MongoAdapter', function() {
     })
     
     it('should pack id', function() {
-      assert.equal(r._id, 'a')
+      expect(r._id).to.equal('a')
     })
     it('should pack createdAt', function() {
-      assert.equal(r._createdAt, 'b')
+      expect(r._createdAt).to.equal('b')
     })
     it('should pack updatedAt', function() {
-      assert.equal(r._updatedAt, 'c')
+      expect(r._updatedAt).to.equal('c')
     })
     it('should remove id', function() {
-      assert.equal(r.id, undefined)
+      expect(r.id).to.equal(undefined)
     })
     it('should remove createdAt', function() {
-      assert.equal(r.createdAt, undefined)
+      expect(r.createdAt).to.equal(undefined)
     })
     it('should remove updatedAt', function() {
-      assert.equal(r.updatedAt, undefined)
+      expect(r.updatedAt).to.equal(undefined)
     })
   })
   
@@ -130,11 +129,11 @@ describe('MongoAdapter', function() {
     
     it('should add _createdAt', function() {
       let vals = testAdapter.prepareValuesForCreate({})
-      assert(vals._createdAt)
+      expect(vals._createdAt).to.exist
     })
     it('should add _updatedAt', function() {
       let vals = testAdapter.prepareValuesForCreate({})
-      assert(vals._updatedAt)
+      expect(vals._updatedAt).to.exist
     })
   })
   
@@ -142,14 +141,12 @@ describe('MongoAdapter', function() {
     
     it('should fail if not setup', async function() {
       let adapter = new MongoAdapter({ url: 'invalid_url' })
-      assert.throws(() => {
-        adapter.guardQuery('TestModel')
-      }, /Cannot query until setup/)
+      let callingGuard = () => { adapter.guardQuery('TestModel') }
+      expect(callingGuard).to.throw(/Cannot query until setup/)
     })
     it('should fail for unknown Models', async function() {
-      assert.throws(() => {
-        testAdapter.guardQuery('UnknownModel')
-      }, /unknown Model/)
+      let callingGuard = () => { testAdapter.guardQuery('UnknownModel') }
+      expect(callingGuard).to.throw(/unknown Model/)
     })
   })
   
@@ -158,29 +155,29 @@ describe('MongoAdapter', function() {
   describe('#create', function() {
     it('should return the new records', async function() {
       let records = await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
-      assert.equal(records.length, 1)
+      expect(records).to.have.lengthOf(1)
     })
     it('should set fields onto records', async function() {
       let records = await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
-      assert.equal(records[0].name, 'Geoff')
+      expect(records[0]).to.have.property('name').that.equals('Geoff')
     })
     it('should set id onto records', async function() {
       let records = await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
-      assert(records[0].id)
+      expect(records[0]).to.have.property('id')
     })
     it('should set createdAt onto records', async function() {
       let records = await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
-      assert(records[0].createdAt)
+      expect(records[0]).to.have.property('createdAt')
     })
     it('should set updatedAt onto records', async function() {
       let records = await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
-      assert(records[0].updatedAt)
+      expect(records[0]).to.have.property('updatedAt')
     })
     it('should persist records', async function() {
       await testAdapter.create('TestModel', [ {name: 'Geoff'} ])
       let db = await MongoClient.connect(dbUrl)
       let records = await db.collection('TestModel').find().toArray()
-      assert.equal(records.length, 1)
+      expect(records).to.have.lengthOf(1)
     })
   })
   
@@ -196,17 +193,14 @@ describe('MongoAdapter', function() {
     
     it('should return matches', async function() {
       let records = await testAdapter.find('TestModel', { name: 'Mark' })
-      assert(records)
-      assert(records[0])
-      assert(records[0].name)
-      assert.equal(records[0].name, 'Mark')
+      expect(records).to.have.lengthOf(1)
+      expect(records[0]).to.have.property('name').that.equals('Mark')
     })
     it('should apply limits', async function() {
       let query = { name: /r/ }
       let opts = { limit: 1 }
       let records = await testAdapter.find('TestModel', query, opts)
-      assert(records)
-      assert.equal(records.length, 1)
+      expect(records).to.have.lengthOf(1)
     })
   })
   
@@ -221,25 +215,24 @@ describe('MongoAdapter', function() {
     })
     
     it('should return the number of updated records', async function() {
-      let q = { name: /o/ }
-      let n = await testAdapter.update('TestModel', q, { age: 42 })
-      assert.equal(n, 3)
+      let query = { name: /o/ }
+      let n = await testAdapter.update('TestModel', query, { age: 42 })
+      expect(n).to.equal(3)
     })
     it('should update a single record', async function() {
-      let q = { name: 'Geoff' }
-      await testAdapter.update('TestModel', q, { age: 8 })
-      let models = await testAdapter.find('TestModel', q)
-      assert(models[0])
-      assert.equal(models[0].age, 8)
+      let query = { name: 'Geoff' }
+      await testAdapter.update('TestModel', query, { age: 8 })
+      let models = await testAdapter.find('TestModel', query)
+      expect(models[0]).to.have.property('age').that.equals(8)
     })
     it('should update multiple records', async function() {
       let q = { name: /o/ }
       await testAdapter.update('TestModel', q, { age: 42 })
       let models = await testAdapter.find('TestModel', q)
-      assert.equal(models.length, 3)
-      assert.equal(models[0].age, 42)
-      assert.equal(models[1].age, 42)
-      assert.equal(models[2].age, 42)
+      
+      expect(models[0]).to.have.property('age').that.equals(42)
+      expect(models[1]).to.have.property('age').that.equals(42)
+      expect(models[2]).to.have.property('age').that.equals(42)
     })
   })
   
@@ -257,18 +250,18 @@ describe('MongoAdapter', function() {
       let q = { name: 'Geoff' }
       await testAdapter.destroy('TestModel', q)
       let models = await testAdapter.find('TestModel', q)
-      assert.equal(models.length, 0)
+      expect(models).to.have.lengthOf(0)
     })
     it('should remove multiple records', async function() {
       let q = { name: /o/ }
       await testAdapter.destroy('TestModel', q)
       let models = await testAdapter.find('TestModel')
-      assert.equal(models.length, 1)
+      expect(models).to.have.lengthOf(1)
     })
     it('should return the number of deleted records', async function() {
       let q = { name: /o/ }
       let n = await testAdapter.destroy('TestModel', q)
-      assert.equal(n, 3)
+      expect(n).to.equal(3)
     })
   })
   
@@ -280,9 +273,8 @@ describe('MongoAdapter', function() {
       let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
       query.validateOn(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
-      assert(mq)
-      assert(mq.name)
-      assert.equal(mq.name, 'Mark')
+      
+      expect(mq).to.have.property('name').that.equals('Mark')
     })
   })
   
@@ -296,14 +288,20 @@ describe('MongoAdapter', function() {
       let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
       query.validateOn(TestModel.schema)
       testAdapter.evaluateExpr(attr, query.processed.name)
-      assert(called)
+      expect(called).to.equal(true)
     })
     it('should fail for invalid expressions', async function() {
       let attr = TestModel.schema.name
       let expr = { type: 'unknown' }
-      assert.throws(() => {
-        testAdapter.evaluateExpr(attr, expr)
-      }, /Unsupported expression/)
+      
+      try {
+        await testAdapter.evaluateExpr(attr, expr)
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/Unsupported expression/)
+      }
     })
   })
+  
 })

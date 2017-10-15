@@ -1,22 +1,20 @@
 const expect = require('chai').expect
-const assert = require('assert')
-const assExt = require('../assertExtension')
-const MemoryConnection = require('../../lib/plugins/MemoryConnection')
 const Otter = require('../../lib/Otter')
+const MemoryAdapter = require('../../lib/adapters/MemoryAdapter')
 
 describe('MemoryConnection', function() {
   
   it('should add a MemoryAdapter', function() {
     let TestOtter = Otter.extend()
-    TestOtter.use(MemoryConnection)
-    assExt.assertClass(TestOtter.active.adapters.default, 'MemoryAdapter')
+    TestOtter.use(Otter.Plugins.MemoryConnection)
+    expect(TestOtter.active.adapters.default).to.be.instanceof(MemoryAdapter)
   })
   
   
   it('should store it under its name', function() {
     let TestOtter = Otter.extend()
-    TestOtter.use(MemoryConnection, { name: 'mem' })
-    assExt.assertClass(TestOtter.active.adapters.mem, 'MemoryAdapter')
+    TestOtter.use(Otter.Plugins.MemoryConnection, { name: 'mem' })
+    expect(TestOtter.active.adapters.mem).to.be.instanceof(MemoryAdapter)
   })
   
 })

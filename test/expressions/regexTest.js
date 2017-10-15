@@ -1,18 +1,17 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const regexExpr = require('../../lib/expressions/regex')
 
 describe('RegexExpression', function() {
   
   it('should pass with regex', function() {
-    assert.equal(regexExpr(/something/, 'string'), true)
+    expect(regexExpr(/something/, 'string')).to.equal(true)
   })
   
   it('should fail if not string', function() {
-    assert.equal(regexExpr(/something/, 'number'), false)
+    expect(regexExpr(/something/, 'number')).to.equal(false)
   })
   
   it('should fail if not a regex', function() {
-    assert.equal(regexExpr('not a regex', 'string'), false)
+    expect(regexExpr('not a regex', 'string')).to.equal(false)
   })
 })

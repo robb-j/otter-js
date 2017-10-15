@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const { collectObjectProperty } = require('../../lib/utils')
 
 
@@ -27,22 +26,22 @@ class OverwrittingTestClass extends TestClass {
 describe('#collectObjectProperty', function() {
   
   it('should be a function', function() {
-    assert.equal(typeof collectObjectProperty, 'function')
+    expect(collectObjectProperty).to.be.a('function')
   })
   
   it('should return the base attributes', function() {
     let prop = collectObjectProperty(TestClass, 'prop')
-    assert.equal(prop.a, 'A')
+    expect(prop.a).to.equal('A')
   })
   
   it('should collect inherited properties', function() {
     let prop = collectObjectProperty(SubTestClass, 'prop')
-    assert.equal(prop.a, 'A')
-    assert.equal(prop.b, 'B')
+    expect(prop.a).to.equal('A')
+    expect(prop.b).to.equal('B')
   })
   
   it('should overwrite inherited properties', function() {
     let prop = collectObjectProperty(OverwrittingTestClass, 'prop')
-    assert.equal(prop.a, 'A2')
+    expect(prop.a).to.equal('A2')
   })
 })

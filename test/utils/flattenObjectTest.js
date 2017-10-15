@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const { flattenObject } = require('../../lib/utils')
 
 describe('#flattenObject', function() {
@@ -10,7 +9,7 @@ describe('#flattenObject', function() {
     
     let flat = flattenObject(object)
     
-    assert.deepEqual(flat, object)
+    expect(flat).to.deep.equal(object)
   })
   
   it('should reduce nested objects to dot notation', function() {
@@ -25,7 +24,7 @@ describe('#flattenObject', function() {
       'a.num': 10, 'a.str': 'hello'
     }
     
-    assert.deepEqual(flat, expected)
+    expect(flat).to.deep.equal(expected)
   })
   
   it('should ignore non-owned objects', function() {
@@ -44,7 +43,7 @@ describe('#flattenObject', function() {
     
     
     // Make sure it didn't flatted the unowned property
-    assert.equal(flat.unowned, undefined)
+    expect(flat.unowned).to.equal(undefined)
   })
   
 })

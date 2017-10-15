@@ -1,6 +1,5 @@
 const expect = require('chai').expect
 const assert = require('assert')
-const assExt = require('../assertExtension')
 const { makePluginable } = require('../../lib/utils')
 
 describe('#makePluginable', function() {
@@ -13,22 +12,22 @@ describe('#makePluginable', function() {
   
   it('should store the active record onto the target', function() {
     makePluginable(target, { })
-    assert(target.active)
+    expect(target.active).to.exist
   })
   
   it('should add a default active record', function() {
     makePluginable(target)
-    assert(target.active)
+    expect(target.active).to.exist
   })
   
   it('should add the use() method', function() {
     makePluginable(target)
-    assert.equal(typeof target.use, 'function')
+    expect(target.use).to.be.a('function')
   })
   
   it('should add the extend() method', function() {
     makePluginable(target)
-    assert.equal(typeof target.extend, 'function')
+    expect(target.extend).to.be.a('function')
   })
   
   
@@ -42,25 +41,34 @@ describe('#makePluginable', function() {
     describe('#use', function() {
       it('should store the plugin', function() {
         target.use(plugin)
-        assert.equal(target.active.plugins.length, 1)
+        expect(target.active.plugins.length).to.equal(1)
       })
       it('should return the target', function() {
         let rtn = target.use(plugin)
-        assert.equal(rtn, target)
+        expect(rtn).to.equal(target)
       })
       it('should fail if not an object', function() {
-        assert.throws(() => {
+        try {
           target.use('not an object')
-        }, /Invalid Plugin/)
+          expect.fail('Should throw')
+        }
+        catch (error) {
+          expect(error).matches(/Invalid Plugin/)
+        }
       })
       it('should fail if no install passed', function() {
-        assert.throws(() => {
+        try {
           target.use({})
-        }, /Invalid Plugin/)
+          expect.fail('Should throw')
+        }
+        catch (error) {
+          expect(error).matches(/Invalid Plugin/)
+        }
+        
       })
       it('should add plugins using the shorthand', function() {
         target.use(() => { })
-        assert.equal(target.active.plugins.length, 1)
+        expect(target.active.plugins.length).to.equal(1)
       })
       it('should call install with "target" as the first param', function() {
         
@@ -68,7 +76,7 @@ describe('#makePluginable', function() {
         let plugin = { install(Otter) { param = Otter } }
         
         target.use(plugin)
-        assert.equal(param, target)
+        expect(param).to.equal(target)
       })
       it('should call install with extra params', function() {
         
@@ -83,8 +91,8 @@ describe('#makePluginable', function() {
         
         target.use(plugin, 'a', 'b')
         
-        assert.equal(extraA, 'a')
-        assert.equal(extraB, 'b')
+        expect(extraA).to.equal('a')
+        expect(extraB).to.equal('b')
       })
     })
     
@@ -98,16 +106,16 @@ describe('#makePluginable', function() {
         child = target.extend()
       })
       it('should make a child', function() {
-        assert.notEqual(child, target)
+        expect(child).to.not.equal(target)
       })
       it('should copy the active record', function() {
-        assert.notEqual(child.active, target.active)
+        expect(child.active).to.not.equal(target.active)
       })
       it('should shallow copy objects', async function() {
-        assert.equal(child.active.a, target.active.a)
+        expect(child.active.a).to.equal(target.active.a)
       })
       it('should shallow copy arrays', async function() {
-        assert.equal(child.active.b, target.active.b)
+        expect(child.active.b).to.equal(target.active.b)
       })
     })
   })
