@@ -1,13 +1,13 @@
-const assert = require('assert')
+const expect = require('chai').expect
 const equalProc = require('../../../../lib/adapters/processors/memory/equality')
 
 describe('EqualityMemoryProcessor', function() {
   it('should fail if unequal', function() {
-    let expr = 9
-    assert.equal(equalProc(expr, 7), false)
+    let result = equalProc(9, 7)
+    expect(result).to.equal(false)
   })
   it('should pass if equal', function() {
-    let expr = 7
-    assert.equal(equalProc(expr, 7), true)
+    let result = equalProc(7, 7)
+    expect(result).to.equal(true)
   })
 })

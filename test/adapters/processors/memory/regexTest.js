@@ -1,15 +1,13 @@
-const assert = require('assert')
+const expect = require('chai').expect
 const regex = require('../../../../lib/adapters/processors/memory/regex')
 
 describe('RegexMemoryProcessor', function() {
   it('should fail if regex is false', function() {
-    let expr = /test/
-    let value = 'Test'
-    assert.equal(regex(expr, value), false)
+    let result = regex(/test/, 'Test')
+    expect(result).to.equal(false)
   })
   it('should pass if regex is true', function() {
-    let expr = /test/i
-    let value = 'Test'
-    assert.equal(regex(expr, value), true)
+    let result = regex(/test/i, 'Test')
+    expect(result).to.equal(true)
   })
 })

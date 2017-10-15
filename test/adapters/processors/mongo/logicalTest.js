@@ -1,4 +1,4 @@
-const assert = require('assert')
+const expect = require('chai').expect
 const NumberAttr = require('../../../../lib/attributes/NumberAttribute')
 const processor = require('../../../../lib/adapters/processors/mongo/logical')
 
@@ -14,13 +14,10 @@ describe('LogicalMongoProcessor', function() {
   it('should convert to mongo syntax', async function() {
     let attr = new NumberAttr('myAttr')
     let expr = {
-      'and': [
-        { '!': 5 },
-        { '!': 7 }
-      ]
+      'and': [ { '!': 5 }, { '!': 7 } ]
     }
     let q = boundProc(attr, expr)
-    assert(q.$and)
-    assert.deepEqual(q.$and, [true, true])
+    expect(q).to.have.property('$and')
+    expect(q.$and).to.deep.equal([true, true])
   })
 })

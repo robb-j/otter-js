@@ -1,3 +1,4 @@
+const expect = require('chai').expect
 const assert = require('assert')
 const logicalExpr = require('../../lib/expressions/logical')
 

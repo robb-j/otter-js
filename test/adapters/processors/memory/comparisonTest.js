@@ -1,30 +1,25 @@
-const assert = require('assert')
+const expect = require('chai').expect
 const comparison = require('../../../../lib/adapters/processors/memory/comparison')
 
 describe('ComparisonMemoryProcessor', function() {
   it('should fail for invalid comparisons', function() {
-    let expr = {}
-    let value = 7
-    assert.equal(comparison(expr, value), false)
+    let result = comparison({}, 7)
+    expect(result).to.equal(false)
   })
   it('should match < operators', function() {
-    let expr = { '<': 10 }
-    let value = 7
-    assert.equal(comparison(expr, value), true)
+    let result = comparison({ '<': 10 }, 7)
+    expect(result).to.equal(true)
   })
   it('should match <= operators', function() {
-    let expr = { '<=': 7 }
-    let value = 7
-    assert.equal(comparison(expr, value), true)
+    let result = comparison({ '<=': 7 }, 7)
+    expect(result).to.equal(true)
   })
   it('should match > operators', function() {
-    let expr = { '>': 5 }
-    let value = 7
-    assert.equal(comparison(expr, value), true)
+    let result = comparison({ '>': 5 }, 7)
+    expect(result).to.equal(true)
   })
   it('should match >= operators', function() {
-    let expr = { '>=': 7 }
-    let value = 7
-    assert.equal(comparison(expr, value), true)
+    let result = comparison({ '>=': 7 }, 7)
+    expect(result).to.equal(true)
   })
 })

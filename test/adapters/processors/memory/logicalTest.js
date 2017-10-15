@@ -1,18 +1,20 @@
-const assert = require('assert')
+const expect = require('chai').expect
 const logical = require('../../../../lib/adapters/processors/memory/logical')
 const MemoryAdapter = require('../../../../lib/adapters/MemoryAdapter')
 
 describe('LogicalMemoryProcessor', function() {
   
-  let adapter
+  let adapter, boundLogical
   
   beforeEach(async function() {
     adapter = new MemoryAdapter()
+    boundLogical = logical.bind(adapter)
     await adapter.setup()
   })
   
   it('should default to false', function() {
-    assert.equal(logical({}, {}), false)
+    let result = logical({}, {})
+    expect(result).to.equal(false)
   })
   
   describe('"and" operator', function() {
@@ -20,15 +22,15 @@ describe('LogicalMemoryProcessor', function() {
       let exprA = { type: 'comparison', expr: { '>': 5 } }
       let exprB = { type: 'comparison', expr: { '<': 10 } }
       let expr = { 'and': [ exprA, exprB ] }
-      let value = 7
-      assert.equal(logical.bind(adapter)(expr, value), true)
+      let result = boundLogical(expr, 7)
+      expect(result).to.equal(true)
     })
     it('should fail if any subExprs fail', function() {
       let exprA = { type: 'comparison', expr: { '>': 5 } }
       let exprB = { type: 'comparison', expr: { '<': 10 } }
       let expr = { 'and': [ exprA, exprB ] }
-      let value = 11
-      assert.equal(logical.bind(adapter)(expr, value), false)
+      let result = boundLogical(expr, 11)
+      expect(result).to.equal(false)
     })
   })
   
@@ -37,15 +39,15 @@ describe('LogicalMemoryProcessor', function() {
       let exprA = { type: 'comparison', expr: { '>': 5 } }
       let exprB = { type: 'comparison', expr: { '<': 10 } }
       let expr = { 'or': [ exprA, exprB ] }
-      let value = 11
-      assert.equal(logical.bind(adapter)(expr, value), true)
+      let result = boundLogical(expr, 11)
+      expect(result).to.equal(true)
     })
     it('should fail if all subExprs fail', function() {
       let exprA = { type: 'comparison', expr: { '>': 15 } }
       let exprB = { type: 'comparison', expr: { '<': 10 } }
       let expr = { 'or': [ exprA, exprB ] }
-      let value = 11
-      assert.equal(logical.bind(adapter)(expr, value), false)
+      let result = boundLogical(expr, 11)
+      expect(result).to.equal(false)
     })
   })
 })

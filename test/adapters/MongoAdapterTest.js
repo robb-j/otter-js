@@ -1,10 +1,9 @@
+const expect = require('chai').expect
 const assert = require('assert')
-const assExt = require('../assertExtension')
 const MongoAdapter = require('../../lib/adapters/MongoAdapter')
 const MongoInMemory = require('mongo-in-memory')
 const MongoClient = require('mongodb').MongoClient
 const Otter = require('../../lib/Otter')
-const StringAttr = require('../../lib/attributes/StringAttribute')
 
 class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String, age: Number } }
@@ -14,7 +13,7 @@ describe('MongoAdapter', function() {
   
   let memServer, dbUrl
   let dbIndex = 0
-  let testAdapter, TestOtter
+  let testAdapter
   
   /* Test Lifecycle */
   before(async function() {
@@ -35,7 +34,7 @@ describe('MongoAdapter', function() {
     testAdapter = new MongoAdapter({ url: dbUrl })
     
     // Start up Otter
-    TestOtter = await Otter.extend()
+    await Otter.extend()
       .addAdapter(testAdapter)
       .addModel(TestModel)
       .start()
