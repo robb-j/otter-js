@@ -103,39 +103,77 @@ describe('Model', function() {
   })
   
   describe('::find', function() {
-    it('should return matching models', async function() {
+    beforeEach(async function() {
       await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
-      
+    })
+    it('should return matching models', async function() {
       let matches = await TestModel.find({name: 'Terrance'})
       expect(matches).to.have.lengthOf(1)
+      console.log(matches[0].constructor.name)
       expect(matches[0].name).to.equal('Terrance')
+    })
+    it('should use options', async function() {
+      let matches = await TestModel.find({}, { limit: 1 })
+      expect(matches).to.have.lengthOf(1)
+    })
+    it('should be chainable', async function() {
+      let matches = await TestModel.find().limit(1)
+      expect(matches).to.have.lengthOf(1)
     })
   })
   
   describe('::findOne', function() {
-    it('should return the first match', async function() {
+    beforeEach(async function() {
       await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
-      
+    })
+    it('should return the first match', async function() {
       let geoff = await TestModel.findOne()
       expect(geoff).to.have.property('name').that.equals('Geoff')
+    })
+    it('should be an instance of the model', async function() {
+      let geoff = await TestModel.findOne()
+      expect(geoff).to.be.instanceOf(TestModel)
+    })
+    it('should be chainable', async function() {
+      let geoff = await TestModel.findOne()
+        .where('name', 'Geoff')
+      expect(geoff).to.exist
     })
   })
   
   describe('::destroy', function() {
-    it('should remove matching models', async function() {
+    beforeEach(async function() {
       await TestModel.create([
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
-      
-      let count = await TestModel.destroy()
-      expect(count).to.equal(2)
+    })
+    it('should remove matching models', async function() {
+      let deleted = await TestModel.destroy('all')
+      expect(deleted).to.equal(2)
+    })
+    it('should use options', async function() {
+      let deleted = await TestModel.destroy('all', { limit: 1 })
+      expect(deleted).to.equal(1)
+    })
+    it('should be chainable', async function() {
+      let deleted = await TestModel.destroy('all').limit(1)
+      expect(deleted).to.equal(1)
+    })
+    it('should fail for empty queries', async function() {
+      try {
+        await TestModel.destroy()
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/Destroy Guard/)
+      }
     })
   })
   
@@ -148,7 +186,7 @@ describe('Model', function() {
     })
     
     it('should update all records', async function() {
-      await TestModel.update({}, { name: 'Bob' })
+      await TestModel.update('all', { name: 'Bob' })
       let models = await TestModel.find()
       expect(models[0].name).to.equal('Bob')
       expect(models[1].name).to.equal('Bob')
@@ -158,6 +196,27 @@ describe('Model', function() {
       let models = await TestModel.find()
       expect(models[0].name).to.equal('Geoff')
       expect(models[1].name).to.equal('Bob')
+    })
+    it('should use options', async function() {
+      await TestModel.update('all', { name: 'Bob' }, { limit: 1 })
+      let models = await TestModel.find()
+      expect(models[0].name).to.equal('Bob')
+      expect(models[1].name).to.equal('Terrance')
+    })
+    it('should be chainable', async function() {
+      await TestModel.update('all', { name: 'Bob' }).limit(1)
+      let models = await TestModel.find()
+      expect(models[0].name).to.equal('Bob')
+      expect(models[1].name).to.equal('Terrance')
+    })
+    it('should fail for empty queries', async function() {
+      try {
+        await TestModel.update({}, { name: 'Tim' })
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/Update Guard/)
+      }
     })
   })
   
