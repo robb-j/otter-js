@@ -1,6 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
-const assExt = require('./assertExtension')
 const Otter = require('../lib/Otter')
 
 class TestModel extends Otter.Types.Model {}
@@ -21,19 +19,19 @@ describe('Otter', function() {
     
     it('should create a new instance', function() {
       let AnotherOtter = TestOtter.extend()
-      assert.notEqual(AnotherOtter, TestOtter)
+      expect(AnotherOtter).to.not.equal(TestOtter)
     })
     
     it('should carry across plugins', function() {
       TestOtter.use(() => {})
       let AnotherOtter = TestOtter.extend()
-      assert.equal(AnotherOtter.active.plugins.length, 1)
+      expect(AnotherOtter.active.plugins).to.have.lengthOf(1)
     })
     
     it('should not carry across plugins after extension', function() {
       let AnotherOtter = TestOtter.extend()
       TestOtter.use(() => {})
-      assert.equal(AnotherOtter.active.plugins.length, 0)
+      expect(AnotherOtter.active.plugins).to.have.lengthOf(0)
     })
     
     it('should shallow copy plugins', function() {
@@ -41,18 +39,15 @@ describe('Otter', function() {
       let AnotherOtter = TestOtter.extend()
       
       // Check they aren't the same objects
-      assert.notEqual(AnotherOtter.active.plugins, TestOtter.active.plugins)
+      expect(AnotherOtter.active.plugins).to.not.equal(TestOtter.active.plugins)
       
       // Check thet have the same objects in
-      assert.deepEqual(
-        AnotherOtter.active.plugins,
-        TestOtter.active.plugins
-      )
+      expect(AnotherOtter.active.plugins).to.deep.equal(TestOtter.active.plugins)
     })
     
     it('should shallow copy adapters', function() {
       let AnotherOtter = TestOtter.extend()
-      assert.notEqual(AnotherOtter.active.adapters, TestOtter.active.adapters)
+      expect(AnotherOtter.active.adapters).to.not.equal(TestOtter.active.adapters)
     })
   })
   
@@ -64,7 +59,7 @@ describe('Otter', function() {
       
       TestOtter.addAdapter(adapter)
       
-      assert(TestOtter.active.adapters.myAdapter)
+      expect(TestOtter.active.adapters.myAdapter).to.exist
     })
     
     it('should fail if already registered', function() {
@@ -73,17 +68,16 @@ describe('Otter', function() {
         name: 'myAdapter',
         setup() { }
       }
-      
       TestOtter.addAdapter(adapter)
       
-      assert.throws(() => {
-        TestOtter.addAdapter(adapter)
-      }, /Adapter already registered/)
+      let addingAdapter = () => { TestOtter.addAdapter(adapter) }
+      
+      expect(addingAdapter).to.throw(/Adapter already registered/)
     })
     
     it('should return itself for chaining', function() {
       let adapter = { name: 'myAdapter', setup() {} }
-      assert(TestOtter.addAdapter(adapter), TestOtter)
+      expect(TestOtter.addAdapter(adapter)).to.equal(TestOtter)
     })
   })
   
@@ -92,20 +86,20 @@ describe('Otter', function() {
     
     it('should store the model', function() {
       TestOtter.addModel(TestModel)
-      assert(TestOtter.active.models.TestModel)
+      expect(TestOtter.active.models.TestModel).to.exist
     })
     
     it('should fail if already registered', function() {
       
       TestOtter.addModel(TestModel)
       
-      assert.throws(() => {
-        TestOtter.addModel(TestModel)
-      }, /Model already registered/)
+      let addingModel = () => { TestOtter.addModel(TestModel) }
+      
+      expect(addingModel).to.throw(/Model already registered/)
     })
     
     it('should return itself for chaining', function() {
-      assert(TestOtter.addModel(TestModel), TestOtter)
+      expect(TestOtter.addModel(TestModel)).to.equal(TestOtter)
     })
   })
   
@@ -114,18 +108,17 @@ describe('Otter', function() {
     
     it('should store the attribute', function() {
       TestOtter.addAttribute(TestAttribute)
-      assert(TestOtter.active.attributes.TestAttribute)
+      expect(TestOtter.active.attributes.TestAttribute).to.exist
     })
     
     it('should fail if already registered', function() {
       TestOtter.addAttribute(TestAttribute)
-      assert.throws(() => {
-        TestOtter.addAttribute(TestAttribute)
-      }, /Attribute already registered/)
+      let addingAttribute = () => { TestOtter.addAttribute(TestAttribute) }
+      expect(addingAttribute).to.throw(/Attribute already registered/)
     })
     
     it('should return itself for chaining', function() {
-      assert(TestOtter.addAttribute(TestAttribute), TestOtter)
+      expect(TestOtter.addAttribute(TestAttribute)).to.equal(TestOtter)
     })
   })
   
@@ -135,13 +128,14 @@ describe('Otter', function() {
     it('should store the expr', function() {
       let expr = (value, type) => { }
       TestOtter.addQueryExpr('myType', expr)
-      assert.equal(TestOtter.active.exprs.myType, expr)
+      expect(TestOtter.active.exprs.myType).to.equal(expr)
     })
     
     it('should fail if not a function', function() {
-      assert.throws(() => {
+      let addingExpr = () => {
         TestOtter.addQueryExpr('type', 'not an expr')
-      }, /Invalid QueryExpr/)
+      }
+      expect(addingExpr).to.throw(/Invalid QueryExpr/)
     })
   })
   
@@ -163,12 +157,12 @@ describe('Otter', function() {
     
     
     it('should return a promise', function() {
-      assExt.assertClass(TestOtter.start(), 'Promise')
+      expect(TestOtter.start()).to.be.instanceOf(Promise)
     })
     
     it('should register default attributes', async function() {
       await TestOtter.start()
-      assert(Object.keys(TestOtter.active.attributes).length > 0)
+      expect(Object.keys(TestOtter.active.attributes)).to.have.lengthOf.greaterThan(0)
     })
     
     it('should allow custom base attributes', async function() {
@@ -181,18 +175,20 @@ describe('Otter', function() {
       await TestOtter.start()
       
       // Check our custom string is still registered
-      assert.equal(TestOtter.active.attributes.String, String)
+      expect(TestOtter.active.attributes.String).to.equal(String)
     })
     
     it('should fail if model has an invalid adapter', async function() {
       
       TestOtter.addModel(InvalidAdapterModel)
       
-      let error = await assExt.getAsyncError(async () => {
+      try {
         await TestOtter.start()
-      })
-      
-      assert(/Invalid adapterName/.test(error.message))
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/Invalid adapterName/)
+      }
     })
     
     it('should succeed with a valid model', async function() {
@@ -203,32 +199,32 @@ describe('Otter', function() {
         await TestOtter.start()
       }
       catch (error) {
-        assert.fail(error.message)
+        expect.fail(error.message)
       }
     })
     
     it('should make models active', async function() {
       TestOtter.addModel(ValidModel)
       await TestOtter.start()
-      assert(ValidModel.isActive)
+      expect(ValidModel.isActive).to.exist
     })
     
     it('should put the adapter onto the model', async function() {
       TestOtter.addModel(ValidModel)
       await TestOtter.start()
-      assert(ValidModel.adapter)
+      expect(ValidModel.adapter).to.exist
     })
     
     it('should put the schema onto the model', async function() {
       TestOtter.addModel(ValidModel)
       await TestOtter.start()
-      assert(ValidModel.schema)
+      expect(ValidModel.schema).to.exist
     })
     
     it('should put the model onto the adapter', async function() {
       TestOtter.addModel(ValidModel)
       await TestOtter.start()
-      assert(TestOtter.active.adapters.default.models.ValidModel)
+      expect(TestOtter.active.adapters.default.models.ValidModel).to.exist
     })
     
     it('should setup adapters', async function() {
@@ -249,7 +245,7 @@ describe('Otter', function() {
       await AnotherOtter.start()
       
       // Check setup was called and passed the correct instance
-      assert.equal(instance, AnotherOtter)
+      expect(instance).to.equal(AnotherOtter)
     })
     
     it('should fail if the adapter does not support an attribute', async function() {
@@ -266,12 +262,13 @@ describe('Otter', function() {
       AnotherOtter.addAdapter(new InvalidAdapter())
       AnotherOtter.addModel(ValidModel)
       
-      
-      let error = await assExt.getAsyncError(async () => {
+      try {
         await AnotherOtter.start()
-      })
-      
-      assert(/does not support/.test(error.message))
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/does not support/)
+      }
     })
     
     it('should fail if an attribute is not valid', async function() {
@@ -287,40 +284,43 @@ describe('Otter', function() {
       TestOtter.addAttribute(Invalid)
       TestOtter.addModel(InvalidModel)
       
-      
-      let error = await assExt.getAsyncError(async () => {
+      try {
         await TestOtter.start()
-      })
-      
-      assert(/an error/.test(error.message))
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/an error/)
+      }
     })
     
     it('should fail if no adapters are set', async function() {
       
       let AnotherOtter = Otter.extend()
       
-      let error = await assExt.getAsyncError(async () => {
+      try {
         await AnotherOtter.start()
-      })
-      
-      assert(/No Adapters added/.test(error.message))
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/No Adapters added/)
+      }
     })
     
     it('should return itself for chaining', async function() {
-      let rtn = await TestOtter.start()
-      assert.equal(rtn, TestOtter)
+      let returned = await TestOtter.start()
+      expect(returned).to.equal(TestOtter)
     })
     
     it('should add exprs to Query', async function() {
       let expr = (value, type) => { }
       TestOtter.addQueryExpr('myType', expr)
       await TestOtter.start()
-      assert.equal(Otter.Types.Query.exprs.myType, expr)
+      expect(Otter.Types.Query.exprs.myType).to.equal(expr)
     })
     
     it('should register default expressions', async function() {
       await TestOtter.start()
-      assert(Object.keys(Otter.Types.Query.exprs).length > 0)
+      expect(Object.keys(Otter.Types.Query.exprs)).to.have.lengthOf.greaterThan(0)
     })
   })
   

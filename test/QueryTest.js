@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const Otter = require('../lib/Otter')
 const { Query } = Otter.Types
 
@@ -106,8 +105,8 @@ describe('Query', function() {
       let expr = { '!': 'Geoff' }
       let q = new Query('TestModel', { name: expr })
       q.validateOn(TestModel.schema)
-      expect(q.processed.name.type).equals('inequality')
-      expect(q.processed.name.expr).deep.equals(expr)
+      expect(q.processed.name.type).to.equal('inequality')
+      expect(q.processed.name.expr).to.deep.equal(expr)
     })
   })
 })
