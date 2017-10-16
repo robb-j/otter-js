@@ -1,6 +1,5 @@
+// const assert = require('assert')
 const expect = require('chai').expect
-const assert = require('assert')
-const Otter = require('../../lib/Otter')
 const parseAttribute = require('../../lib/utils/parseAttribute')
 
 describe('#parseAttribute', function() {
@@ -14,50 +13,52 @@ describe('#parseAttribute', function() {
   
   it('should parse type literals', function() {
     let attr = parseAttribute(String, available, 'attr', 'MyModel')
-    
-    assert(attr)
-    assert.equal(attr.constructor.name, 'String')
+    // assert(attr)
+    // assert.equal(attr.constructor.name, 'String')
+    expect(attr.constructor.name).to.equal('String')
   })
   
   it('should fail for invalid type literals', function() {
-    
     function InvalidLiteral() { }
-    assert.throws(() => {
+    let callingParse = () => {
       parseAttribute(InvalidLiteral, available, 'attr', 'MyModel')
-    }, /Invalid Type/)
+    }
+    expect(callingParse).to.throw(/Invalid Type/)
   })
   
   it('should parse string literals', function() {
     let attr = parseAttribute('String', available, 'attr', 'MyModel')
-    assert(attr)
+    expect(attr).to.exist
   })
   
   it('should fail for invalid string literals types', function() {
-    assert.throws(() => {
+    let callingParse = () => {
       parseAttribute('Invalid', available, 'attr', 'MyModel')
-    })
+    }
+    expect(callingParse).to.throw()
   })
   
   it('should parse typed objects', function() {
   
     let raw = { type: 'String' }
     let attr = parseAttribute(raw, available, 'attr', 'MyModel')
-    assert(attr)
+    expect(attr).to.exist
   })
   
   it('should set name, model & options on new attribute', function() {
     let raw = { type: String, someProp: 'B' }
     let attr = parseAttribute(raw, available, 'myAttr', 'MyModel')
-    assert.equal(attr.name, 'myAttr')
-    assert.equal(attr.model, 'MyModel')
-    assert.equal(attr.options.someProp, 'B')
+    expect(attr.name).to.equal('myAttr')
+    expect(attr.model).to.equal('MyModel')
+    expect(attr.options).to.have.property('someProp').to.equal('B')
   })
   
   it('should fail if no type passed', function() {
     let raw = { someProp: 'C' }
-    assert.throws(() => {
+    let callingParse = () => {
       parseAttribute(raw, available, 'myAttr', 'MyModel')
-    }, /Could not determine type/)
+    }
+    expect(callingParse).to.throw(/Could not determine type/)
   })
   
   

@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const Otter = require('../lib/Otter')
 
 
@@ -15,52 +14,54 @@ describe('Attribute', function() {
     it('should store the options', function() {
       let opts = {}
       let attr = new Otter.Types.Attribute(null, null, opts)
-      assert.equal(attr.options, opts)
+      expect(attr.options).to.equal(opts)
     })
     
     it('should store its name', function() {
       let attr = new Otter.Types.Attribute('myAttr')
-      assert.equal(attr.name, 'myAttr')
+      expect(attr.name).to.equal('myAttr')
     })
     
     it('should store its model name', function() {
       let attr = new Otter.Types.Attribute(null, 'MyModel')
-      assert.equal(attr.modelName, 'MyModel')
+      expect(attr.modelName).to.equal('MyModel')
     })
     
     it('should set default options', function() {
       let attr = new Otter.Types.Attribute('myAttr')
-      assert(attr.options)
+      expect(attr.options).to.exist
     })
     
     it('should store enum options', function() {
       let attr = new TestAttribute('myAttr', 'MyModel', {
         enum: [ 'A', 'B', 'C' ]
       })
-      assert.deepEqual(attr.enumOptions, [ 'A', 'B', 'C' ])
+      expect(attr.enumOptions).to.deep.equal([ 'A', 'B', 'C' ])
     })
     
     it('should store validator', function() {
       let attr = new TestAttribute('myAttr', 'MyModel', {
         validator() {}
       })
-      assert.equal(typeof attr.validator, 'function')
+      expect(attr.validator).to.be.a('function')
     })
     
     it('should fail if protect is not a boolean', function() {
-      assert.throws(() => {
+      let creatingAttribute = () => {
         let attr = new TestAttribute('myAttr', 'MyModel', {
           protect: 'not a bool'
         })
-      }, /'protect' must be a Boolean/)
+      }
+      expect(creatingAttribute).to.throw(/'protect' must be a Boolean/)
     })
     
     it('should fail if required is not a boolean', function() {
-      assert.throws(() => {
-        let attr = new TestAttribute('myAttr', 'MyModel', {
-          required: 'not a bool'
-        })
-      }, /'required' must be a Boolean/)
+      /* eslint-disable no-new */
+      let creatingAttribute = () => {
+        let options = { required: 'not a bool' }
+        new TestAttribute('myAttr', 'MyModel', options)
+      }
+      expect(creatingAttribute).to.throw(/'required' must be a Boolean/)
     })
   })
   
@@ -69,14 +70,12 @@ describe('Attribute', function() {
     
     it('should exist', function() {
       let attr = new Otter.Types.Attribute('myAttr')
-      assert(attr.validateSelf)
+      expect(attr.validateSelf).to.exist
     })
     
     it('should not throw by default', function() {
       let attr = new Otter.Types.Attribute('myAttr')
-      assert.doesNotThrow(() => {
-        attr.validateSelf()
-      })
+      attr.validateSelf()
     })
   })
   
@@ -84,7 +83,7 @@ describe('Attribute', function() {
   describe('#fullName', function() {
     it('should format class and attribute name', function() {
       let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
-      assert.equal(attr.fullName, 'MyModel.myAttr')
+      expect(attr.fullName).to.equal('MyModel.myAttr')
     })
   })
   
@@ -92,27 +91,25 @@ describe('Attribute', function() {
   describe('#valueType', function() {
     it('should default to null', function() {
       let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
-      assert.equal(attr.valueType, null)
+      expect(attr.valueType).to.equal(null)
     })
   })
   
   
   describe('#isProtected', function() {
     it('should be true if set', function() {
-      let attr = new Otter.Types.Attribute('myAttr', 'MyModel', {
-        protect: true
-      })
-      assert.equal(attr.isProtected, true)
+      let options = { protect: true }
+      let attr = new Otter.Types.Attribute('myAttr', 'MyModel', options)
+      expect(attr.isProtected).to.equal(true)
     })
   })
   
   
   describe('#isRequired', function() {
     it('should be true if set', function() {
-      let attr = new Otter.Types.Attribute('myAttr', 'MyModel', {
-        required: true
-      })
-      assert.equal(attr.isRequired, true)
+      let options = { required: true }
+      let attr = new Otter.Types.Attribute('myAttr', 'MyModel', options)
+      expect(attr.isRequired).to.equal(true)
     })
   })
   
@@ -129,26 +126,26 @@ describe('Attribute', function() {
     
     it('should add a getter', function() {
       attr.installOn(model)
-      assert.equal(model.age, 7)
+      expect(model.age).to.equal(7)
     })
     
     it('should add a setter', function() {
       attr.installOn(model)
       model.age = 42
-      assert.equal(model.age, 42)
+      expect(model.age).to.equal(42)
     })
     
     it('should add an enumerable value', function() {
       attr.installOn(model)
       let vals = Object.keys(model)
-      assert(vals.includes('age'))
+      expect(vals).to.include('age')
     })
     
     it('should set default value', function() {
       let defaultAttr = new Otter.Types.Attribute('name', 'MyModel', { default: 21 })
       let model = { values: {} }
       defaultAttr.installOn(model)
-      assert.equal(model.name, 21)
+      expect(model.name).to.equal(21)
     })
     
     it('should set default value via function', function() {
@@ -156,13 +153,13 @@ describe('Attribute', function() {
       let defaultAttr = new Otter.Types.Attribute('name', 'MyModel', options)
       let model = { values: {} }
       defaultAttr.installOn(model)
-      assert.equal(model.name, 9)
+      expect(model.name).to.equal(9)
     })
     
     it('should set value to null if no default', function() {
       let model = { values: {} }
       attr.installOn(model)
-      assert(model.age === null)
+      expect(model.age).to.equal(null)
     })
   })
   
@@ -177,33 +174,33 @@ describe('Attribute', function() {
     
     it('return raw values', function() {
       let processed = attr.processEnumOption(['A', 'B', 'C'])
-      assert.deepEqual(processed, ['A', 'B', 'C'])
+      expect(processed).to.deep.equal([ 'A', 'B', 'C' ])
     })
     
     it('should process enum function', function() {
       let processed = attr.processEnumOption(function() {
         return [ 'A', 'B', 'C' ]
       })
-      assert.deepEqual(processed, [ 'A', 'B', 'C' ])
+      expect(processed).to.deep.equal([ 'A', 'B', 'C' ])
     })
     
     it('default to null', function() {
       let processed = attr.processEnumOption()
-      assert.strictEqual(processed, null)
+      expect(processed).to.equal(null)
     })
     
     it('should fail if not an array', function() {
-      assert.throws(() => {
-        let processed = attr.processEnumOption('hello')
-      }, /Invalid enum/)
+      let callingProcess = () => {
+        attr.processEnumOption('hello')
+      }
+      expect(callingProcess).to.throw(/Invalid enum/)
     })
     
     it('should fail if values are wrong type', function() {
-      assert.throws(() => {
-        let processed = attr.processEnumOption([
-          'A', 'B', 7
-        ])
-      }, /Invalid enum values/)
+      let callingProcess = () => {
+        attr.processEnumOption([ 'A', 'B', 7 ])
+      }
+      expect(callingProcess).to.throw(/Invalid enum values/)
     })
   })
   
@@ -218,18 +215,19 @@ describe('Attribute', function() {
     
     it('should default to null', function() {
       let processed = attr.processValidatorOption()
-      assert.strictEqual(processed, null)
+      expect(processed).to.equal(null)
     })
     
     it('should fail if not a function', function() {
-      assert.throws(() => {
+      let callingProcess = () => {
         attr.processValidatorOption('no a function')
-      }, /Invalid validator/)
+      }
+      expect(callingProcess).to.throw(/Invalid validator/)
     })
     
     it('should return a function', function() {
       let processed = attr.processValidatorOption(function() {})
-      assert.equal(typeof processed, 'function')
+      expect(processed).to.be.a('function')
     })
     
     it('should rebind this to the attribute', function() {
@@ -238,7 +236,7 @@ describe('Attribute', function() {
         boundThis = this
       })
       processed()
-      assert.equal(boundThis, attr)
+      expect(boundThis).to.equal(attr)
     })
   })
   

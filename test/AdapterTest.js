@@ -1,6 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
-const assExt = require('./assertExtension')
 const Adapter = require('../lib/Adapter')
 const Otter = require('../lib/Otter')
 
@@ -15,85 +13,86 @@ describe('Adapter', function() {
   
   describe('#constructor', function() {
     it('should set default name', function() {
-      assert.equal(testAdapter.name, 'default')
+      expect(testAdapter.name).to.equal('default')
     })
     it('should use the name in options', function() {
       testAdapter = new Adapter({ name: 'fancyAdapter' })
-      assert.equal(testAdapter.name, 'fancyAdapter')
+      expect(testAdapter.name).to.equal('fancyAdapter')
     })
     it('should store the options', function() {
       let options = {}
       testAdapter = new Adapter(options)
-      assert.equal(testAdapter.options, options)
+      expect(testAdapter.options).to.deep.equal(options)
     })
     it('should setup a store for models', function() {
-      assert(testAdapter.models)
+      expect(testAdapter.models).to.exist
     })
     it('should setup a store for processors', function() {
-      assert(testAdapter.processors)
+      expect(testAdapter.processors).to.exist
     })
   })
   
   describe('#supportsAttribute', function() {
     it('should default to false', function() {
-      assert(!testAdapter.supportsAttribute('String'))
+      expect(testAdapter.supportsAttribute('String')).to.equal(false)
     })
   })
   
   describe('#setup', function() {
     it('should return a promise', function() {
-      assExt.assertClass(testAdapter.setup(), 'Promise')
+      expect(testAdapter.setup()).to.be.instanceOf(Promise)
     })
   })
   
   describe('#teardown', function() {
     it('should return a promise', function() {
       let testAdapter = new Adapter()
-      assExt.assertClass(testAdapter.teardown(), 'Promise')
+      expect(testAdapter.teardown()).to.be.instanceOf(Promise)
     })
   })
   
   describe('#addProcessor', function() {
     it('should store the processor under the type', function() {
       testAdapter.addProcessor('where', (k, a, v) => { })
-      assert(testAdapter.processors.where)
-      assert.equal(testAdapter.processors.where.length, 1)
+      expect(testAdapter.processors.where).to.exist
+      expect(testAdapter.processors.where).to.have.lengthOf(1)
     })
     it('should fail if not a function', function() {
-      assert.throws(() => {
+      let callingAdd = () => {
         testAdapter.addProcessor('where', 'not a function')
-      }, /Invalid Processor/)
+      }
+      expect(callingAdd).to.throw(/Invalid Processor/)
     })
     it('should add new keys if not present', function() {
       testAdapter.addProcessor('extra', (k, v, a) => { })
-      assert(testAdapter.processors.extra)
-      assert.equal(testAdapter.processors.extra.length, 1)
+      expect(testAdapter.processors.extra).to.exist
+      expect(testAdapter.processors.extra).to.have.lengthOf(1)
     })
     it('should return itself for chaining', function() {
-      let rtn = testAdapter.addProcessor('extra', (k, v, a) => { })
-      assert.equal(rtn, testAdapter)
+      let value = testAdapter.addProcessor('extra', (k, v, a) => { })
+      expect(value).to.equal(testAdapter)
     })
   })
   
   describe('#makeQuery', function() {
     it('should return a query', function() {
       let q = testAdapter.makeQuery('TestModel')
-      assExt.assertClass(q, 'Query')
+      expect(q).to.be.instanceOf(Otter.Types.Query)
     })
     it('should return a query instance if passed one', function() {
-      let q = new Otter.Types.Query()
-      let result = testAdapter.makeQuery('TestModel', q)
-      assert.equal(result, q)
+      let query = new Otter.Types.Query()
+      let result = testAdapter.makeQuery('TestModel', query)
+      expect(result).to.equal(query)
     })
     it('should set the options on the query', function() {
-      let q = testAdapter.makeQuery('TestModel', '77', { limit: 7 })
-      assert.equal(q.limit, 7)
+      let query = testAdapter.makeQuery('TestModel', '77', { limit: 7 })
+      expect(query.limit).to.equal(7)
     })
   })
   
   describe('(validation)', function() {
     
-    let testAdapter, TestOtter
+    let testAdapter
     
     class FailingAttr extends Otter.Types.Attribute {
       validateModelValue(value) { throw new Error('Attribute is invalid') }
@@ -110,7 +109,7 @@ describe('Adapter', function() {
     
     beforeEach(async function() {
       testAdapter = new TestAdapter()
-      TestOtter = await Otter.extend().use((o) => {
+      await Otter.extend().use((o) => {
         o.addModel(ModelA)
         o.addModel(ModelB)
         o.addAdapter(testAdapter)
@@ -119,57 +118,54 @@ describe('Adapter', function() {
     })
   
     describe('#validateModelQuery', function() {
-      it('should exist', function() {
-        assert.equal(typeof testAdapter.validateModelQuery, 'function')
-      })
       it('should pass', function() {
-        let q = new Otter.Types.Query('ModelA')
-        assert.doesNotThrow(() => {
-          testAdapter.validateModelQuery(q)
-        })
+        let query = new Otter.Types.Query('ModelA')
+        testAdapter.validateModelQuery(query)
       })
       it('should fail with invalid models', function() {
-        let q = new Otter.Types.Query('BadModel')
-        assert.throws(() => {
-          testAdapter.validateModelQuery(q)
-        }, /unknown Model/)
+        let query = new Otter.Types.Query('BadModel')
+        let callingValidate = () => {
+          testAdapter.validateModelQuery(query)
+        }
+        expect(callingValidate).to.throw(/unknown Model/)
       })
       it('should fail with unknown where attributes', function() {
-        let q = new Otter.Types.Query('ModelA', { age: 5 })
-        assert.throws(() => {
-          testAdapter.validateModelQuery(q)
-        }, /unknown Attribute/)
+        
+        let query = new Otter.Types.Query('ModelA', { age: 5 })
+        let callingValidate = () => {
+          testAdapter.validateModelQuery(query)
+        }
+        expect(callingValidate).to.throw(/unknown Attribute/)
       })
     })
     
     describe('#validateModelValues', function() {
-      it('should exist', function() {
-        assert.equal(typeof testAdapter.validateModelValues, 'function')
-      })
       it('should pass', function() {
-        assert.doesNotThrow(() => {
-          testAdapter.validateModelValues('ModelA', { name: 'Terrance' })
-        })
+        testAdapter.validateModelValues('ModelA', { name: 'Terrance' })
       })
       it('should fail without values', function() {
-        assert.throws(() => {
+        let callingValidate = () => {
           testAdapter.validateModelValues('ModelA')
-        }, /without values/)
+        }
+        expect(callingValidate).to.throw(/without values/)
       })
       it('should fail with invalid models', function() {
-        assert.throws(() => {
+        let callingValidate = () => {
           testAdapter.validateModelValues('BadModel', {})
-        }, /unknown Model/)
+        }
+        expect(callingValidate).to.throw(/unknown Model/)
       })
       it('should fail if attribute fails', function() {
-        assert.throws(() => {
+        let callingValidate = () => {
           testAdapter.validateModelValues('ModelB', { name: 'Terrance' })
-        }, /Attribute is invalid/)
+        }
+        expect(callingValidate).to.throw(/Attribute is invalid/)
       })
       it('should fail for unknown values', function() {
-        assert.throws(() => {
+        let callingValidate = () => {
           testAdapter.validateModelValues('ModelA', { age: 7 })
-        }, /unknown Attribute/)
+        }
+        expect(callingValidate).to.throw(/unknown Attribute/)
       })
     })
   })

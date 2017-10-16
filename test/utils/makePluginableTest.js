@@ -1,5 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
 const { makePluginable } = require('../../lib/utils')
 
 describe('#makePluginable', function() {

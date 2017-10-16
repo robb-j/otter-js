@@ -1,6 +1,4 @@
 const expect = require('chai').expect
-const assert = require('assert')
-const assExt = require('./assertExtension')
 const Otter = require('../lib/Otter')
 
 
@@ -34,15 +32,15 @@ describe('Model', function() {
   describe('::attributes', function() {
     it('should contain id property', function() {
       let props = TestModel.collectAttributes()
-      assert(props.id)
+      expect(props.id).to.exist
     })
     it('should contain createdAt property', function() {
       let props = TestModel.collectAttributes()
-      assert(props.createdAt)
+      expect(props.createdAt).to.exist
     })
     it('should contain updatedAt property', function() {
       let props = TestModel.collectAttributes()
-      assert(props.updatedAt)
+      expect(props.updatedAt).to.exist
     })
   })
   
@@ -50,13 +48,13 @@ describe('Model', function() {
     it('should contain base properties', function() {
       let base = TestModel.attributes()
       let collected = TestModel.collectAttributes()
-      assert(collected, base)
+      expect(collected).to.include(base)
     })
   })
   
   describe('::adapterName', function() {
     it('should have a default value of "default"', function() {
-      assert.equal(TestModel.adapterName(), 'default')
+      expect(TestModel.adapterName()).to.equal('default')
     })
   })
   
@@ -64,7 +62,7 @@ describe('Model', function() {
     it('should return the adapter when set', function() {
       let adapter = {}
       TestModel._adapter = adapter
-      assert.equal(TestModel.adapter, adapter)
+      expect(TestModel.adapter).to.equal(adapter)
     })
   })
   
@@ -72,17 +70,17 @@ describe('Model', function() {
     it('should return the schema when set', function() {
       let schema = {}
       TestModel._schema = schema
-      assert.equal(TestModel.schema, schema)
+      expect(TestModel.schema).to.equal(schema)
     })
   })
   
   describe('::isActive', function() {
     it('should be false by default', function() {
       class NewModel extends Otter.Types.Model {}
-      assert(NewModel.isActive === false)
+      expect(NewModel.isActive).to.equal(false)
     })
     it('should be true when an adapter & schema is set', function() {
-      assert(TestModel.isActive)
+      expect(TestModel.isActive).to.equal(true)
     })
   })
   
@@ -93,16 +91,14 @@ describe('Model', function() {
   describe('::create', function() {
     it('should create a new record', async function() {
       let geoff = await TestModel.create({ name: 'Geoff' })
-      assert(geoff)
-      assert.equal(geoff.name, 'Geoff')
+      expect(geoff).to.have.property('name').that.equals('Geoff')
     })
     it('should create multiple records', async function() {
       let models = await TestModel.create([
         { name: 'Tom' },
         { name: 'Bob' }
       ])
-      assert(Array.isArray(models))
-      assert.equal(models.length, 2)
+      expect(models).to.be.an('array').that.has.lengthOf(2)
     })
   })
   
@@ -114,8 +110,8 @@ describe('Model', function() {
       ])
       
       let matches = await TestModel.find({name: 'Terrance'})
-      assert.equal(matches.length, 1)
-      assert.equal(matches[0].name, 'Terrance')
+      expect(matches).to.have.lengthOf(1)
+      expect(matches[0].name).to.equal('Terrance')
     })
   })
   
@@ -127,8 +123,7 @@ describe('Model', function() {
       ])
       
       let geoff = await TestModel.findOne()
-      assert(geoff)
-      assert.equal(geoff.name, 'Geoff')
+      expect(geoff).to.have.property('name').that.equals('Geoff')
     })
   })
   
@@ -140,9 +135,8 @@ describe('Model', function() {
       ])
       
       let count = await TestModel.destroy()
-      assert.equal(count, 2)
+      expect(count).to.equal(2)
     })
-    it('should ', function() {})
   })
   
   describe('::update', function() {
@@ -156,14 +150,14 @@ describe('Model', function() {
     it('should update all records', async function() {
       await TestModel.update({}, { name: 'Bob' })
       let models = await TestModel.find()
-      assert.equal(models[0].name, 'Bob')
-      assert.equal(models[1].name, 'Bob')
+      expect(models[0].name).to.equal('Bob')
+      expect(models[1].name).to.equal('Bob')
     })
     it('should update matching records', async function() {
       await TestModel.update(2, { name: 'Bob' })
       let models = await TestModel.find()
-      assert.equal(models[0].name, 'Geoff')
-      assert.equal(models[1].name, 'Bob')
+      expect(models[0].name).to.equal('Geoff')
+      expect(models[1].name).to.equal('Bob')
     })
   })
   
@@ -172,19 +166,14 @@ describe('Model', function() {
   /* * * STATIC HOOKS * * */
   
   describe('::validateValues', function() {
-    it('should exist', function() {
-      assert.equal(typeof TestModel.validateValues, 'function')
-    })
     it('should not throw', function() {
-      assert.doesNotThrow(() => {
-        TestModel.validateValues({})
-      })
+      TestModel.validateValues({})
     })
   })
   
   describe('::processValues', function() {
     it('should exist', function() {
-      assert.equal(typeof TestModel.processValues, 'function')
+      expect(TestModel.processValues).to.be.a('function')
     })
   })
   
@@ -195,32 +184,32 @@ describe('Model', function() {
   describe('#adapter', function() {
     it('should return the adapter when set', function() {
       let m = new TestModel()
-      assert.equal(m.adapter, TestModel.adapter)
+      expect(m.adapter).to.equal(TestModel.adapter)
     })
   })
   
   describe('#schema', function() {
     it('should return the schema when set', function() {
       let m = new TestModel()
-      assert.equal(m.schema, TestModel.schema)
+      expect(m.schema).to.equal(TestModel.schema)
     })
   })
   
   describe('#modelName', function() {
     it('should return the name of the model', function() {
       let m = new TestModel()
-      assert.equal(m.modelName, 'TestModel')
+      expect(m.modelName).to.equal('TestModel')
     })
   })
   
   describe('#exists', function() {
     it('should be true when model is created', async function() {
       let m = await TestModel.create({ name: 'Geoff' })
-      assert.equal(m.exists, true)
+      expect(m.exists).to.equal(true)
     })
     it('should be false when model is not created', function() {
       let m = new TestModel({ name: 'Geoff' })
-      assert.equal(m.exists, false)
+      expect(m.exists).to.equal(false)
     })
   })
   
@@ -232,19 +221,19 @@ describe('Model', function() {
     it('should store the values', function() {
       let vals = {}
       let m = new TestModel(vals)
-      assert.equal(m.values, vals)
+      expect(m.values).to.equal(vals)
     })
     it('should set the id to null', function() {
       let m = new TestModel()
-      assert(m.id === null)
+      expect(m.id).to.be.null
     })
     it('should use values fallback', function() {
       let m = new TestModel()
-      assert(m.values)
+      expect(m.values).to.exist
     })
     it('should install values via attributes', function() {
       let m = new TestModel({ name: 'Geoff' })
-      assert.equal(m.name, 'Geoff')
+      expect(m.name).to.equal('Geoff')
     })
   })
   
@@ -252,12 +241,12 @@ describe('Model', function() {
     it('should add a model to the store', async function() {
       let m = new TestModel({ name: 'Geoff' })
       await m.save()
-      assert.equal(m.adapter.store.TestModel[1].name, 'Geoff')
+      expect(m.adapter.store.TestModel[1].name).to.equal('Geoff')
     })
     it('should set the id on new models', async function() {
       let m = new TestModel({ name: 'Geoff' })
       await m.save()
-      assert.equal(m.id, 1)
+      expect(m.id).to.equal('1')
     })
     it('should update existing models', async function() {
       
@@ -266,13 +255,17 @@ describe('Model', function() {
       
       await m.save()
       
-      assert.equal(m.adapter.store.TestModel[1].name, 'Terrance')
+      expect(m.adapter.store.TestModel[1].name).to.equal('Terrance')
     })
     it('should fail updating a model that does not exist', async function() {
       let m = new TestModel({ id: 1, name: 'Geoff' })
-      let error = await assExt.getAsyncError(() => { return m.save() })
-      assert(error)
-      assExt.assertRegex(/Cannot update/, error.message)
+      try {
+        await m.save()
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/Cannot update/)
+      }
     })
   })
   
@@ -283,29 +276,30 @@ describe('Model', function() {
       await m.destroy()
       
       let found = await TestModel.findOne(1)
-      assert.equal(found, null)
+      expect(found).to.be.null
     })
     it('should fail if the model isn\'t created yet', async function() {
-      
       let m = new TestModel({ name: 'Geoff' })
       
-      let error = await assExt.getAsyncError(() => {
-        return m.destroy()
-      })
-      
-      assert(error)
-      assExt.assertRegex(/hasn't ben created/, error.message)
+      try {
+        await m.destroy()
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/hasn't ben created/)
+      }
     })
     it('should fail if model does not exist', async function() {
       
       let m = new TestModel({ id: 1, name: 'Geoff' })
       
-      let error = await assExt.getAsyncError(() => {
-        return m.destroy()
-      })
-      
-      assert(error)
-      assExt.assertRegex(/that doesn't exist/, error.message)
+      try {
+        await m.destroy()
+        expect.fail('Should throw')
+      }
+      catch (error) {
+        expect(error).matches(/that doesn't exist/)
+      }
     })
   })
   
@@ -313,10 +307,10 @@ describe('Model', function() {
     it('should return its values', function() {
       let m = new TestModel({name: 'Geoff'})
       let object = m.inspect()
-      assert.equal(object.id, m.values.id)
-      assert.equal(object.name, m.values.name)
-      assert.equal(object.createdAt, m.values.createdAt)
-      assert.equal(object.updatedAt, m.values.updatedAt)
+      expect(object.id).to.equal(m.values.id)
+      expect(object.name).to.equal(m.values.name)
+      expect(object.createdAt).to.equal(m.values.createdAt)
+      expect(object.updatedAt).to.equal(m.values.updatedAt)
     })
   })
   
@@ -324,10 +318,10 @@ describe('Model', function() {
     it('should return its values', function() {
       let m = new TestModel({name: 'Geoff'})
       let object = m.toJSON()
-      assert.equal(object.id, m.values.id)
-      assert.equal(object.name, m.values.name)
-      assert.equal(object.createdAt, m.values.createdAt)
-      assert.equal(object.updatedAt, m.values.updatedAt)
+      expect(object.id).to.equal(m.values.id)
+      expect(object.name).to.equal(m.values.name)
+      expect(object.createdAt).to.equal(m.values.createdAt)
+      expect(object.updatedAt).to.equal(m.values.updatedAt)
     })
   })
   

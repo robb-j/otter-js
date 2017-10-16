@@ -1,14 +1,13 @@
 const expect = require('chai').expect
-const assert = require('assert')
-const assExt = require('../assertExtension')
 const Otter = require('../../lib/Otter')
+const MongoAdapter = require('../../lib/adapters/MongoAdapter')
 
 describe('MemoryConnection', function() {
   
   it('should add a MemoryAdapter', function() {
     let TestOtter = Otter.extend()
     TestOtter.use(Otter.Plugins.MongoConnection, { url: 'mongodb:localhost' })
-    assExt.assertClass(TestOtter.active.adapters.default, 'MongoAdapter')
+    expect(TestOtter.active.adapters.default).is.instanceOf(MongoAdapter)
   })
   
 })
