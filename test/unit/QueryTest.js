@@ -99,7 +99,7 @@ describe('Query', function() {
       expect(callingValidate).throws(/Unrecognised query expression/)
     })
     
-    it.only('should fail for untyped attributes', async function() {
+    it('should fail for untyped attributes', async function() {
       let query = new Query('TestModel', { other: 10 })
       let callingValidate = () => { query.validateOn(TestModel.schema) }
       expect(callingValidate).throws(/Cannot query untyped/)
