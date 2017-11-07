@@ -6,7 +6,7 @@ const Otter = require('../../../lib/Otter')
 const { asyncError, makeModel } = require('../../utils')
 
 
-describe.only('HasOneAttribute', function() {
+describe('HasOneAttribute', function() {
   
   describe('#valueType', function() {
     it('should be a string', async function() {

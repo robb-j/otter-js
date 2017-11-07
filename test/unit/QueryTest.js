@@ -4,16 +4,18 @@ const { Query } = Otter.Types
 
 describe('Query', function() {
   
-  let TestOtter, TestModel
+  let TestModel, Untyped
   
   beforeEach(async function() {
-    TestOtter = Otter.extend()
     TestModel = class extends Otter.Types.Model {
-      static attributes() { return { name: String } }
+      static attributes() { return { name: String, other: 'Untyped' } }
     }
-    TestOtter.use(Otter.Plugins.MemoryConnection)
-    TestOtter.addModel(TestModel)
-    await TestOtter.start()
+    Untyped = class extends Otter.Types.Attribute { }
+    await Otter.extend()
+      .use(Otter.Plugins.MemoryConnection)
+      .addModel(TestModel)
+      .addAttribute(Untyped)
+      .start()
   })
   
   
@@ -91,10 +93,16 @@ describe('Query', function() {
       expect(q.processed.name).to.exist
     })
     
-    it('should fail if unknow expression', function() {
+    it('should fail for unknown expressions', function() {
       let query = new Query('TestModel', { name: { 'random': 'Geoff' } })
       let callingValidate = () => { query.validateOn(TestModel.schema) }
       expect(callingValidate).throws(/Unrecognised query expression/)
+    })
+    
+    it.only('should fail for untyped attributes', async function() {
+      let query = new Query('TestModel', { other: 10 })
+      let callingValidate = () => { query.validateOn(TestModel.schema) }
+      expect(callingValidate).throws(/Cannot query untyped/)
     })
   })
   
