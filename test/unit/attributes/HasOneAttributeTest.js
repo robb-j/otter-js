@@ -58,7 +58,7 @@ describe('HasOneAttribute', function() {
   
   describe('#installOn', function() {
     
-    let Parent, Child, geremy, timmy
+    let Parent, Child, geremy, timmy, bobby
     beforeEach(async function() {
       Parent = makeModel('Parent', {
         child: { hasOne: 'Child' }
@@ -71,16 +71,18 @@ describe('HasOneAttribute', function() {
         .start()
       
       timmy = await Child.create({ name: 'Timmy' })
+      bobby = await Child.create({ name: 'Bobby' })
       geremy = await Parent.create({ child: timmy.id })
     })
     
-    it('should define a function on the model', async function() {
-      expect(geremy.child).to.be.a('function')
+    it('should add an accessor method', async function() {
+      let child = await geremy.child
+      expect(child.name).to.equal('Timmy')
     })
     
-    it('should add an accessor method', async function() {
-      let child = await geremy.child()
-      expect(child.name).to.equal('Timmy')
+    it('should define a setter by objects', async function() {
+      geremy.child = bobby
+      expect(geremy.child_id).to.equal(bobby.id)
     })
     
     it('should define an id getter', async function() {
@@ -88,10 +90,31 @@ describe('HasOneAttribute', function() {
     })
     
     it('should define an id setter', async function() {
-      let bobby = await Child.create({ name: 'Bobby' })
       geremy.child_id = bobby.id
       expect(geremy.child_id).to.equal(bobby.id)
     })
+  })
+  
+  describe('#processOptions', function() {
+    
+    let ModelA, ModelB
+    beforeEach(async function() {
+      ModelA = makeModel('ModelA', {
+        brother: { type: 'HasOne', model: 'ModelB' }
+      })
+      ModelB = makeModel('ModelB')
+      
+      await Otter.extend()
+        .use(Otter.Plugins.MemoryConnection)
+        .addModel(ModelA)
+        .addModel(ModelB)
+        .start()
+    })
+    
+    it('should store the target type', async function() {
+      expect(ModelA.schema.brother.targetModel).to.equal(ModelB)
+    })
+    
   })
   
 })

@@ -293,6 +293,26 @@ describe('Otter', function() {
       }
     })
     
+    it('should let attributes process their values', async function() {
+      
+      let wasCalled = false
+      
+      class Processing extends Otter.Types.Attribute {
+        processOptions(Otter) { wasCalled = true }
+      }
+      
+      class SomeModel extends Otter.Types.Model {
+        static attributes() { return { some: 'Processing' } }
+      }
+      
+      TestOtter.addAttribute(Processing)
+      TestOtter.addModel(SomeModel)
+      
+      await TestOtter.start()
+      
+      expect(wasCalled).to.equal(true)
+    })
+    
     it('should fail if no adapters are set', async function() {
       
       let AnotherOtter = Otter.extend()
