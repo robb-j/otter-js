@@ -6,6 +6,23 @@ const Otter = require('../../../lib/Otter')
 const { asyncError, makeModel } = require('../../utils')
 
 
+function makeParentModel(targetModel) {
+  return makeModel('Parent', {
+    children: { type: 'HasMany', model: targetModel }
+  })
+}
+
+function makeChildModel(attrType, targetModel) {
+  return makeModel('Child', {
+    parent: { type: attrType, model: targetModel }
+  })
+}
+
+function getStartupError(Otter) {
+  return asyncError(() => Otter.start())
+}
+
+
 describe('HasManyAttribute', function() {
   
   let TestOtter
@@ -24,53 +41,63 @@ describe('HasManyAttribute', function() {
   describe('#validateSelf', function() {
     
     it('should fail without a model', async function() {
-      TestOtter.addModel(makeModel('Invalid', {
-        children: { type: 'HasMany' }
-      }))
       
-      let error = await asyncError(() => TestOtter.start())
+      TestOtter.addModel(makeParentModel(undefined))
       
-      expect(error).matches(/No model specified/)
+      let error = await getStartupError(TestOtter)
+      expect(error.code).to.equal('attr.relation.missingModel')
     })
     
     it('should fail if the model is not registered', async function() {
-      TestOtter.addModel(makeModel('Invalid', {
-        children: { type: 'HasMany', model: 'Child' }
-      }))
       
-      let error = await asyncError(() => TestOtter.start())
+      TestOtter.addModel(makeParentModel('Child'))
       
-      expect(error).matches(/Invalid model specified/)
+      let error = await getStartupError(TestOtter)
+      expect(error.code).to.equal('attr.relation.invalidModel')
     })
     
     it('should validate "via" syntax', async function() {
-    
-      let Person = makeModel('Person', {
-        children: { type: 'HasMany', model: 'Child via parent' }
-      })
-      let Child = makeModel('Child', {
-        parent: { type: 'HasOne', model: 'Person' }
-      })
       
-      await TestOtter.addModel(Person).addModel(Child).start()
+      TestOtter.addModel(makeParentModel('Child via parent'))
+      TestOtter.addModel(makeChildModel('HasOne', 'Parent'))
+      
+      await TestOtter.start()
     })
     
     it('should fail if there is no via', async function() {
-      TestOtter.addModel(makeModel('Invalid', {
-        children: { type: 'HasMany', model: 'Child' }
-      }))
+      
+      TestOtter.addModel(makeParentModel('Child'))
       TestOtter.addModel(makeModel('Child'))
-      let error = await asyncError(() => TestOtter.start())
-      expect(error).matches(/No 'via' attribute specified/)
+      
+      let error = await getStartupError(TestOtter)
+      expect(error.code).to.equal('attr.hasMany.noVia')
     })
     
-    it.skip('should fail if the via does not match', async function() {
-      TestOtter.addModel(makeModel('Invalid', {
-        children: { type: 'HasMany', model: 'Child via parent' }
-      }))
+    it('should fail if the via does not match', async function() {
+      
+      TestOtter.addModel(makeParentModel('Child via parent'))
       TestOtter.addModel(makeModel('Child'))
-      let error = await asyncError(() => TestOtter.start())
-      expect(error).matches(/via attribute 'parent' does not exist/)
+      
+      let error = await getStartupError(TestOtter)
+      expect(error.code).to.equal('attr.hasMany.missingVia')
+    })
+    
+    it('should fail if the via attribute is not a HasOne', async function() {
+      
+      TestOtter.addModel(makeParentModel('Child via parent'))
+      TestOtter.addModel(makeChildModel('String'))
+      
+      let error = await getStartupError(TestOtter)
+      expect(error.code).to.equal('attr.hasMany.invalidVia')
+    })
+    
+    it('should fail if the via attribute is for the wrong model', async function() {
+      TestOtter.addModel(makeParentModel('Child via parent'))
+      TestOtter.addModel(makeChildModel('HasOne', 'AnotherParent'))
+      TestOtter.addModel(makeModel('AnotherParent'))
+      
+      let error = await getStartupError(TestOtter)
+      expect(error.code).to.equal('attr.hasMany.invalidVia')
     })
   })
   
