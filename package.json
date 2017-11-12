@@ -1,8 +1,12 @@
 {
-  "name": "otter-api",
+  "name": "otterjs",
   "version": "0.0.1",
-  "description": "...",
-  "main": "lib/index.js",
+  "description": "A modern extendable ORM",
+  "main": "lib/Otter.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robb-j/otter-js"
+  },
   "scripts": {
     "test": "node_modules/.bin/mocha",
     "docs": "node_modules/.bin/apidoc -i lib/ -o docs/ --silent",
@@ -10,9 +14,6 @@
     "coverage-summary": "node_modules/.bin/nyc --reporter=text-summary node_modules/.bin/mocha",
     "start": "node lib/index.js",
     "start_old": "node_modules/.bin/nodemon -q -w lib -w test lib/index.js"
-  },
-  "apidoc": {
-    "title": "otter-api"
   },
   "author": "robb-j",
   "license": "ISC",
