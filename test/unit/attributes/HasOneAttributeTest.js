@@ -75,6 +75,11 @@ describe('HasOneAttribute', function() {
       geremy = await Parent.create({ child: timmy.id })
     })
     
+    it('should default the value to null', async function() {
+      let clarence = await Parent.create({ })
+      expect(clarence.values.child).to.equal(null)
+    })
+    
     it('should add an accessor method', async function() {
       let child = await geremy.child()
       expect(child.name).to.equal('Timmy')
