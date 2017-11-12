@@ -102,7 +102,80 @@ describe('HasManyAttribute', function() {
   })
   
   describe('#installOn', function() {
-    // ...
+    
+    let Parent, Child, geremy, timmy, bobby
+    beforeEach(async function() {
+      Parent = makeModel('Parent', {
+        children: { hasMany: 'Child via parent' }
+      })
+      Child = makeModel('Child', {
+        name: 'String',
+        parent: { hasOne: 'Parent' }
+      })
+      await Otter.extend()
+        .use(Otter.Plugins.MemoryConnection)
+        .addModel(Parent)
+        .addModel(Child)
+        .start()
+      
+      geremy = await Parent.create({ })
+      timmy = await Child.create({ name: 'Timmy', parent: geremy.id })
+      bobby = await Child.create({ name: 'Bobby', parent: geremy.id })
+    })
+    
+    
+    it('should add an accessor method', async function() {
+      let children = await geremy.children()
+      expect(children).to.have.lengthOf(2)
+    })
+    
+    describe('model#add', function() {
+      it('update the child\'s relation', async function() {
+        let billy = await Child.create({ name: 'Billy' })
+        await geremy.children.add(billy)
+        expect(billy.parent_id).to.equal(geremy.id)
+      })
+    })
+    
+    describe('model#remove', function() {
+      it('should remove a child by its id', async function() {
+        await geremy.children.remove(timmy.id)
+        expect(timmy.parent_id).to.equal(null)
+      })
+      
+      it('should remove a child by instances', async function() {
+        await geremy.children.remove(timmy)
+        expect(timmy.parent_id).to.equal(null)
+      })
+      
+      it('should remove multiple by ids', async function() {
+        await geremy.children.remove([timmy.id, bobby.id])
+        expect(timmy.parent_id).to.equal(null)
+        expect(bobby.parent_id).to.equal(null)
+      })
+      
+      it('should remove multiple by instances', async function() {
+        await geremy.children.remove([timmy, bobby])
+        expect(timmy.parent_id).to.equal(null)
+        expect(bobby.parent_id).to.equal(null)
+      })
+      
+      it('should fail with unknow arguements', async function() {
+        let error = await asyncError(() => {
+          return geremy.children.remove(new Date())
+        })
+        expect(error.code).to.equal('attr.hasMany.invalidRemove')
+      })
+    })
+    
+    describe('model#clear', function() {
+      it('should remove all relations', async function() {
+        await geremy.children.clear()
+        expect(timmy.parent_id).to.equal(null)
+        expect(bobby.parent_id).to.equal(null)
+      })
+    })
+    
   })
   
   describe('#processOptions', function() {

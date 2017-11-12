@@ -76,13 +76,8 @@ describe('HasOneAttribute', function() {
     })
     
     it('should add an accessor method', async function() {
-      let child = await geremy.child
+      let child = await geremy.child()
       expect(child.name).to.equal('Timmy')
-    })
-    
-    it('should define a setter by objects', async function() {
-      geremy.child = bobby
-      expect(geremy.child_id).to.equal(bobby.id)
     })
     
     it('should define an id getter', async function() {

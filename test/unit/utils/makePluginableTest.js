@@ -37,7 +37,7 @@ describe('#makePluginable', function() {
       makePluginable(target)
     })
     
-    describe('#use', function() {
+    describe('target#use', function() {
       it('should store the plugin', function() {
         target.use(plugin)
         expect(target.active.plugins.length).to.equal(1)
@@ -95,7 +95,7 @@ describe('#makePluginable', function() {
       })
     })
     
-    describe('#extend', function() {
+    describe('target#extend', function() {
       let child
       beforeEach(function() {
         target.active = {
