@@ -71,6 +71,11 @@ describe('#parseAttribute', function() {
     expect(attr).to.be.instanceOf(customTypes.Relation)
   })
   
+  it('should fail for invalid custom names', async function() {
+    let callingParse = () => parseAttrWithDefaults({ })
+    expect(callingParse).to.throw(/Could not determine type/)
+  })
+  
   it('should apply mapping to options', async function() {
     let attr = parseAttrWithDefaults({ relation: 'Cat' })
     expect(attr.options).to.have.property('model').that.equals('Cat')

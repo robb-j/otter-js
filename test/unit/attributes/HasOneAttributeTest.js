@@ -80,9 +80,17 @@ describe('HasOneAttribute', function() {
       expect(clarence.values.child).to.equal(null)
     })
     
-    it('should add an accessor method', async function() {
-      let child = await geremy.child()
-      expect(child.name).to.equal('Timmy')
+    describe('model#accessor', function() {
+      it('should fetch the related model', async function() {
+        let child = await geremy.child()
+        expect(child.name).to.equal('Timmy')
+      })
+      
+      it('should default to null', async function() {
+        let geoffrey = await Parent.create({ })
+        let child = await geoffrey.child()
+        expect(child).to.equal(null)
+      })
     })
     
     it('should define an id getter', async function() {

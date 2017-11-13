@@ -31,6 +31,16 @@ describe('OtterError', function() {
       let error = OtterError.fromCode('adapter.unknownModel', 'SomeModel')
       expect(error.code).to.equal(`adapter.unknownModel`)
     })
+    
+    it('should fail for invalid codes', async function() {
+      let creatingAnError = () => OtterError.fromCode('someUnkownCode')
+      expect(creatingAnError).throws(/Invalid error code/)
+    })
+    
+    it('should fail when passed the wrong amount of arguements', async function() {
+      let creatingAnError = () => OtterError.fromCode('adapter.unknownModel')
+      expect(creatingAnError).throws(/Invalid args/)
+    })
   })
   
   describe('::registerTypes', function() {

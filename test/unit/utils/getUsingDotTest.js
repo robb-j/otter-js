@@ -17,4 +17,9 @@ describe('#getUsingDot', function() {
     let match = getUsingDot('a.complex.key', haystack)
     expect(match).to.equal('huzzar')
   })
+  
+  it('should default to null', async function() {
+    let match = getUsingDot('someUnknownKey', haystack)
+    expect(match).to.equal(null)
+  })
 })
