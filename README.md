@@ -9,53 +9,34 @@ const Otter = require('otterjs');
 
 class Wizard extends Otter.Types.Model {
   static attributes() {
-    return {
-      name: String,
-      age: Number,
-      companions: { hasMany: 'Hero via wizard' }
-    };
-  }
-}
-class Hero extends Otter.Types.Model {
-  static attributes() {
-    return {
-      name: { type: String, default: 'John' },
-      weapon: { type: String, enum: [ 'Sword', 'Bow', 'Axe', 'Hammer' ] },
-      wizard: { hasOne: 'Wizard' }
-    };
+    return { name: String, age: Number };
   }
 }
 
 (async () => {
   
-  // Connect to a Mongo database
-  Otter.use(Otter.Plugins.MongoConnection, {
-    url: 'mongodb://root:secret@localhost:27017/otter'
-  });
+  // Register our model, add a database connection and start up
+  await Otter.addModel(Wizard)
+    .use(Otter.Plugins.MemoryConnection)
+    .start()
   
-  // Add our models
-  Otter.addModel(Wizard);
-  Otter.addModel(Hero);
-  
-  // Startup Otter, validating its configuration
-  // Checks the connection and validates the configuration
-  await Otter.start();
-  
-  // Create a new wizard
-  let gandalf = await Wizard.create({
-    name: 'Gandalf',
-    age: 2019
-  });
-  
-  // Create some heroes
-  await Hero.create([
-    { name: 'Aragorn', weapon: 'Sword', wizard: gandalf.id },
-    { name: 'Legolas', weapon: 'Bow', wizard: gandalf.id },
-    { name: 'Gimli', weapon: 'Axe', wizard: gandalf.id }
+  // Create some wizards
+  await Wizard.create([
+    { name: 'Gandalf', age: 2019 },
+    { name: 'Albus Dumbledore', age: 150 },
+    { name: 'Dr Strange', age: 57 },
+    { name: 'Wizzard', age: 28 }
   ]);
   
-  // Get Gandalf's heroes which have an 'o' in their name
-  let heroes = await gandalf.companions().where('name', /o/ig);
+  // Get wizards which are older that 150
+  let matches = await Wizard.find({ age: { '>': 150 } })
+  
+  // Set a wizard's age to 99 if their name has an 'o' in it
+  await Wizard.update({ name: /o/ }, { age: 99 })
+  
+  // Delete any wizards with the name 'Harry Otter'
+  await Wizard.destroy({ name: 'Harry Otter' })
+  
 })()
 ```
 
@@ -63,39 +44,47 @@ class Hero extends Otter.Types.Model {
 
 ## Using Models
 
-Models are your connection to the database, they are ES6 Classes which subclass `Otter.Types.Model` and are registered by calling `Otter.addModel(MyModel)`.
+Models are your connection to the database, they are ES6 Classes which subclass `Otter.Types.Model` and define groups of fields you want to store in a database. Once defined they are then used to create, update and query records from your database.
 
 ### Attributes
 
-Models define attributes which are the fields you want to store in the database. This is done by defining the static `attributes()` method on your subclass, which should return an object of the attributes you want your model to have.
+Models define attributes which are the fields you want to be stored. This is done by defining `static attributes()` on your Model, which returns attribute names and their corresponding type.
 
 ```js
-class Wizard extends Otter.Types.Model {
+class Hero extends Otter.Types.Model {
   
   static attributes() {
     return {
       name: String,
-      height: 'Number',
-      age: {
-        type: Number,
-        default: 42
-      },
-      weapon: {
-        type: String,
-        enum: [ 'Staff', 'Wand', 'CrystalBall' ]
-      }
-    }
+      height: Number,
+      birthday: Date,
+      isCool: Boolean
+    };
   }
 }
 ```
 
-Attributes can be defined in a couple of ways, you can use the shorthand by referencing a native type or the name type of Attribute, like `name` or `height`. For the Attributes you can use see [Available Attributes](#attr-types)
+Attributes can be defined in a couple of ways, you can use the shorthand by passing a native type, like above. You can also pass a String instead, e.g. `String` or `Number`. For all the Attributes you can use see [Available Attributes](#available-attributes).
 
-You can also provide a full definition like `age` or `weapon`, here you pass the type (which accepts the same values as the shorthand) along with other options. For the available options and more info see [Attribute Options](#attr-opts)
+```js
+let moreAttributes = {
+  age: {
+    type: Number,
+    default: 42,
+    validator(value) { return value >= 0 }
+  },
+  weapon: {
+    type: String,
+    enum: [ 'Sword', 'Bow', 'Axe', 'Hammer' ]
+  }
+};
+```
 
-### Accessor Methods
+You can also provide a full definition like `age` or `weapon`, here you pass the type (which accepts the same values as the shorthand) along with other options. For the available options and more info see [Attribute Options](#attribute-options).
 
-Once you have a Model, you can start using it. First you'll have to let Otter know about your Model and get Otter started up. Starting is asynchronous, so we'll need run this in an async block. [More info about async-await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+### Starting up Otter
+
+Once you have a Model, you can start using it to talk to your database. First you'll have to let Otter know about your Model and get Otter started up. Starting is asynchronous, so we'll need run this in an async block. [More info about async-await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
 
 ```js
 (async () => {
@@ -103,53 +92,71 @@ Once you have a Model, you can start using it. First you'll have to let Otter kn
   // Register our Model
   Otter.addModel(Wizard);
   
-  // Tell Otter what database to connect to
+  // Connect to a Mongo database
   Otter.use(Otter.Plugins.MongoConnection, { url: 'mongodb://...' });
   
-  // Startup Otter, configuration errors are thrown here
+  // Startup Otter
   await Otter.start();
   
-  
+})();
+```
+
+There are a few things here, firstly we're registering our Model with `Otter.addModel()`, this lets Otter know we want to use this model. Otter won't do anything with our model, yet, but its ready for when we start it up.
+
+Next we use a Plugin to register our connection to our mongo database (you'll of course need to set your [Mongo URI](https://docs.mongodb.com/manual/reference/connection-string/)). The plugin system lets package authors define units of code that can be added to Otter in one go, for more info see [More About Plugins](#plugins).
+
+The final step is to start up Otter, this lets otter perform all the checks it needs and gets your Models ready for use. It checks your Model's attributes are all of your configured correctly and throws errors if not (or the promise will reject if not using async-await). For all of the errors that can be thrown see [Otter Errors](#errors).
+
+### Creating a Record
+
+```js
+(async () => {
   
   // Create a wizard
   let gandalf = new Wizard({ name: 'Gandalf', age: 2018 });
   
   // Set his age
-  gandalf.age = 2019
+  gandalf.age = 2019;
   
   // Save him into the database
-  await gandalf.save()
+  await gandalf.save();
   
-  // Batch create
-  await Wizard.create([ { name: 'Saruman' }, { name: 'Radagast' } ])
-  
-  
-  
-  // Find some wizards
-  let matches = await Wizard.find({ name: 'Radagast' })
-  
-  // Update the age of any wizards with an 'a' in their name
-  await Wizard.update({ name: /a/ }, { age: 2019 })
-  
-  // Delete wizards younger than 1000
-  await Wizard.destroy({ age: { '<': 1000 } })
+  // Remove Gandalf
+  await gandalf.destroy();
   
 })();
 ```
 
-There are a few things here, firstly we're registering our Model, adding a connection to a mongo database and then starting Otter up.
+Now Otter is started, we can do the interesting stuff! We create our first wizard, Gandalf. You can use your model just like any ES6 class. Set the values you want to store on your model and call `save()` to write your record into the database. If you got the model from a query, save will update the existing record, if you just created it it'll create it.
 
-We simply register our model with the `Otter.addModel()` to Otter, this lets Otter know we want to use this model. Otter won't do anything with our model, yet, but its ready for when we start up.
+```js
+(async () => {
+  
+  // Batch create
+  let wizards = await Wizard.create([
+    { name: 'Saruman' },
+    { name: 'Radagast' }
+  ]);
+  
+  // Find some wizards
+  let matches = await Wizard.find({ name: 'Radagast' });
 
-Next we use a Plugin to register our connection to our mongo database (you'll of course need to set your [Mongo URI](https://docs.mongodb.com/manual/reference/connection-string/)). The plugin system lets package authors define units of code that can be added to Otter in one go, for more info see [More About Plugins](#plugins).
+  // Update the age of any wizards with an 'a' in their name
+  await Wizard.update({ name: /a/ }, { age: 2019 });
 
-The final step is to start up Otter, this lets otter perform all the checks it needs and get your Model ready for use. Otter checks your Model's configuration and that you've defined all of your attributes correctly. This step will throw errors about any incorrect configuration (or the promise will reject if not using async-await). For all of the errors that can be thrown see [Otter Errors](#errors).
+  // Delete wizards younger than 1000
+  await Wizard.destroy({ age: { '<': 1000 } });
+  
+})();
+```
 
-Now we can do the interesting stuff, we create our first wizard, Gandalf of course. You can use your model just like any ES6 class and call `save()` to save the wizard into the database. You can also use the static method `Wizard.create()` to batch create one or more records at once.
+Along with the instance methods, Otter also provides static methods for easier access. For instance, you can use the method `Wizard.create()` to batch create one or more records at once.
 
-We can query for records using the `Wizard.find(...)` static method, here we pass an object query into `find()` which finds any wizards which have the name `Radagast`. You can do a lot with queries and they get used in the other the accessor methods, for more info see [Query Syntax](#query-syntax).
+We can query for records using `Wizard.find(...)`, here we pass an query which finds any wizards which have the name `Radagast`. You can do a lot with queries and they get used in the other the static methods, for more info see [Query Syntax](#query-syntax).
 
-Finally we use the other accessor methods, `update()` and `destroy()`, which take the same queries like `find()`. `update()` takes a query and updates all records that match with a set of values. `destroy()` deletes all records that match a query, be careful!
+You can use `Wizard.update()` to perform batch updates on your records. It takes a query too, updating any records that match it with the values in the second parameter. Here, it sets a wizard's age to 2019 if its name contains an `a`.
+
+Finally we use the `destroy()` method, this one will delete any records which match a given query. Here we delete all wizards which are younger that 1000. Be careful with this one!
 
 ### Relations
 
@@ -204,33 +211,33 @@ There is also the full definition, like `Orc.weapon` and `Weapon.owners` which t
 Here some more info in detail about different features
 
 
-### Available Attributes <a name="attr-types"></a>
+### Available Attributes
 ...
 
 
-### Attribute Options <a name="attr-opts"></a>
+### Attribute Options
 ...
 
 
-### More About Plugins <a name="plugins"></a>
+### More About Plugins
 ...
 
 
-### Otter Errors <a name="errors"></a>
+### Otter Errors
 ...
 
 
-### Query Syntax <a name="query-syntax"></a>
+### Query Syntax
 ...
 
 
-### The Startup Process <a name="startup-process"></a>
+### The Startup Process
 ...
 
 
-### Multiple Adapters <a name="multi-adapters"></a>
+### Multiple Adapters
 ...
 
 
-### Unit Testing <a name="unit-testing"></a>
+### Unit Testing
 ...
