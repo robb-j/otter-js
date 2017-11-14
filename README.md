@@ -18,7 +18,7 @@ class Wizard extends Otter.Types.Model {
   // Register our model, add a database connection and start up
   await Otter.addModel(Wizard)
     .use(Otter.Plugins.MemoryConnection)
-    .start()
+    .start();
   
   // Create some wizards
   await Wizard.create([
@@ -29,15 +29,15 @@ class Wizard extends Otter.Types.Model {
   ]);
   
   // Get wizards which are older that 150
-  let matches = await Wizard.find({ age: { '>': 150 } })
+  let matches = await Wizard.find({ age: { '>': 150 } });
   
   // Set a wizard's age to 99 if their name has an 'o' in it
-  await Wizard.update({ name: /o/ }, { age: 99 })
+  await Wizard.update({ name: /o/ }, { age: 99 });
   
   // Delete any wizards with the name 'Harry Otter'
-  await Wizard.destroy({ name: 'Harry Otter' })
+  await Wizard.destroy({ name: 'Harry Otter' });
   
-})()
+})();
 ```
 
 
@@ -169,7 +169,7 @@ class Orc extends Otter.Types.Model {
       name: String,
       master: { hasOne: 'Villain' },
       weapon: { type: 'HasOne', model: 'Weapon' }
-    }
+    };
   }
 }
 
@@ -178,7 +178,7 @@ class Villain extends Otter.Types.Model {
     return {
       name: String,
       horde: { hasMany: 'Orc via master' }
-    }
+    };
   }
 }
 
@@ -190,7 +190,7 @@ class Weapon extends Otter.Types.Model {
         model: 'Orc',
         via: 'weapon'
       }
-    }
+    };
   }
 }
 ```
