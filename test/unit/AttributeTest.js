@@ -118,7 +118,6 @@ describe('Attribute', function() {
   describe('#installOn', function() {
     
     let model, values, attr
-    
     beforeEach(function() {
       values = { age: 7 }
       model = { values }
@@ -165,10 +164,18 @@ describe('Attribute', function() {
   })
   
   
+  describe('#valueMatchesType', function() {
+    
+    it('should compare the type', async function() {
+      let attr = new TestAttribute()
+      expect(attr.valueMatchesType('something')).to.equal(true)
+    })
+  })
+  
+  
   describe('#processEnumOption', function() {
     
     let attr
-    
     beforeEach(function() {
       attr = new TestAttribute('myAttr', 'TestModel')
     })
@@ -209,7 +216,6 @@ describe('Attribute', function() {
   describe('#processValidatorOption', function() {
     
     let attr
-    
     beforeEach(function() {
       attr = new TestAttribute('myAttr', 'TestModel')
     })

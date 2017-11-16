@@ -79,29 +79,29 @@ describe('Query', function() {
   })
   
   
-  describe('#validateOn', function() {
+  describe('#prepareForSchema', function() {
     
     it('should pass if all attributes are valid', function() {
       let q = new Query('TestModel', { name: {'!': 'Geoff'} })
-      q.validateOn(TestModel.schema)
+      q.prepareForSchema(TestModel.schema)
     })
     
     it('should processes the query', function() {
       let q = new Query('TestModel', { name: { '!': 'Geoff' } })
-      q.validateOn(TestModel.schema)
+      q.prepareForSchema(TestModel.schema)
       expect(q.processed).to.exist
       expect(q.processed.name).to.exist
     })
     
     it('should fail for unknown expressions', function() {
       let query = new Query('TestModel', { name: { 'random': 'Geoff' } })
-      let callingValidate = () => { query.validateOn(TestModel.schema) }
+      let callingValidate = () => query.prepareForSchema(TestModel.schema)
       expect(callingValidate).throws(/Unrecognised query expression/)
     })
     
     it('should fail for untyped attributes', async function() {
       let query = new Query('TestModel', { other: 10 })
-      let callingValidate = () => { query.validateOn(TestModel.schema) }
+      let callingValidate = () => query.prepareForSchema(TestModel.schema)
       expect(callingValidate).throws(/Cannot query untyped/)
     })
   })
@@ -112,7 +112,7 @@ describe('Query', function() {
     it('should store the type', function() {
       let expr = { '!': 'Geoff' }
       let q = new Query('TestModel', { name: expr })
-      q.validateOn(TestModel.schema)
+      q.prepareForSchema(TestModel.schema)
       expect(q.processed.name.type).to.equal('inequality')
       expect(q.processed.name.expr).to.deep.equal(expr)
     })

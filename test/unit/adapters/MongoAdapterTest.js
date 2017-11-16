@@ -271,10 +271,31 @@ describe('MongoAdapter', function() {
   describe('#genMongoQuery', function() {
     it('should process to mongo query', async function() {
       let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
-      query.validateOn(TestModel.schema)
+      query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
       
       expect(mq).to.have.property('name').that.equals('Mark')
+    })
+    it('should move id to _id', async function() {
+      let query = new Otter.Types.Query('TestModel', { id: '1234' })
+      query.prepareForSchema(TestModel.schema)
+      let mq = testAdapter.genMongoQuery(query)
+      expect(mq).to.not.have.property('id')
+      expect(mq).to.have.property('_id')
+    })
+    it('should move createdAt to _createdAt', async function() {
+      let query = new Otter.Types.Query('TestModel', { createdAt: new Date() })
+      query.prepareForSchema(TestModel.schema)
+      let mq = testAdapter.genMongoQuery(query)
+      expect(mq).to.not.have.property('createdAt')
+      expect(mq).to.have.property('_createdAt')
+    })
+    it('should move updatedAt to _updatedAt', async function() {
+      let query = new Otter.Types.Query('TestModel', { updatedAt: new Date() })
+      query.prepareForSchema(TestModel.schema)
+      let mq = testAdapter.genMongoQuery(query)
+      expect(mq).to.not.have.property('updatedAt')
+      expect(mq).to.have.property('_updatedAt')
     })
   })
   
@@ -286,7 +307,7 @@ describe('MongoAdapter', function() {
       }
       let attr = TestModel.schema.name
       let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
-      query.validateOn(TestModel.schema)
+      query.prepareForSchema(TestModel.schema)
       testAdapter.evaluateExpr(attr, query.processed.name)
       expect(called).to.equal(true)
     })

@@ -1,25 +1,32 @@
 const expect = require('chai').expect
 const notExpr = require('../../../lib/expressions/inequality')
+const StringAttribute = require('../../../lib/attributes/StringAttribute')
 
 describe('InequalityExpression', function() {
+  
+  let attr
+  beforeEach(async function() {
+    attr = new StringAttribute('name', 'ModelName')
+  })
+  
   it('should fail if not an object', function() {
-    let value = notExpr('not an object', 'string')
-    expect(value).to.equal(false)
+    let result = notExpr('not an object', attr)
+    expect(result).to.equal(false)
   })
   it('should fail with no keys', function() {
-    let value = notExpr({}, 'string')
-    expect(value).to.equal(false)
+    let result = notExpr({}, attr)
+    expect(result).to.equal(false)
   })
   it('should fail without "!" key', function() {
-    let value = notExpr({a: 'b'}, 'string')
-    expect(value).to.equal(false)
+    let result = notExpr({a: 'b'}, attr)
+    expect(result).to.equal(false)
   })
   it('should fail with incorrect comparison type', function() {
-    let value = notExpr({'!': 7}, 'string')
-    expect(value).to.equal(false)
+    let result = notExpr({'!': 7}, attr)
+    expect(result).to.equal(false)
   })
-  it('should pass with "!" and a string', function() {
-    let value = notExpr({'!': 'geoff'}, 'string')
-    expect(value).to.equal(true)
+  it('should validate a not expression', function() {
+    let result = notExpr({'!': 'geoff'}, attr)
+    expect(result).to.equal(true)
   })
 })

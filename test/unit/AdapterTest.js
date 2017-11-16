@@ -38,6 +38,13 @@ describe('Adapter', function() {
     })
   })
   
+  describe('#baseAttributes', function() {
+    it('should return an empty object', async function() {
+      let base = testAdapter.baseAttributes()
+      expect(base).to.deep.equal({})
+    })
+  })
+  
   describe('#setup', function() {
     it('should return a promise', function() {
       expect(testAdapter.setup()).to.be.instanceOf(Promise)
