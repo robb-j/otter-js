@@ -1,17 +1,21 @@
 const expect = require('chai').expect
 const Otter = require('../../lib/Otter')
 
-class TestModel extends Otter.Types.Model {}
 class TestAttribute extends Otter.Types.Attribute {}
+
+const { asyncError, makeModel } = require('../utils')
+
+function startupError(Otter) {
+  return asyncError(() => Otter.start())
+}
 
 
 describe('Otter', function() {
   
-  let TestOtter = null
-  
+  let TestOtter, TestModel
   beforeEach(function() {
-    
     TestOtter = Otter.extend()
+    TestModel = makeModel('TestModel', { })
   })
   
   
@@ -142,15 +146,13 @@ describe('Otter', function() {
   
   describe('#start', function() {
     
-    let InvalidAdapterModel
-    let ValidModel
-    
+    let InvalidAdapterModel, ValidModel
     beforeEach(function() {
       InvalidAdapterModel = class extends Otter.Types.Model {
         static adapterName() { return 'invalid' }
       }
       
-      ValidModel = class extends Otter.Types.Model { }
+      ValidModel = makeModel('ValidModel', { name: String })
       
       TestOtter.use(Otter.Plugins.MemoryConnection)
     })
@@ -182,25 +184,13 @@ describe('Otter', function() {
       
       TestOtter.addModel(InvalidAdapterModel)
       
-      try {
-        await TestOtter.start()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Invalid adapterName/)
-      }
+      let error = await startupError(TestOtter)
+      expect(error).matches(/Invalid adapterName/)
     })
     
     it('should succeed with a valid model', async function() {
-      
       TestOtter.addModel(ValidModel)
-      
-      try {
-        await TestOtter.start()
-      }
-      catch (error) {
-        expect.fail(error.message)
-      }
+      await TestOtter.start()
     })
     
     it('should make models active', async function() {
@@ -262,19 +252,14 @@ describe('Otter', function() {
       AnotherOtter.addAdapter(new InvalidAdapter())
       AnotherOtter.addModel(ValidModel)
       
-      try {
-        await AnotherOtter.start()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/does not support/)
-      }
+      let error = await startupError(AnotherOtter)
+      expect(error).matches(/does not support/)
     })
     
     it('should fail if an attribute is not valid', async function() {
       
       class Invalid extends Otter.Types.Attribute {
-        validateSelf(Otter) { throw new Error('an error') }
+        validateSelf(Otter) { throw new Error('CUSTOM_ERROR') }
       }
       
       class InvalidModel extends Otter.Types.Model {
@@ -284,13 +269,8 @@ describe('Otter', function() {
       TestOtter.addAttribute(Invalid)
       TestOtter.addModel(InvalidModel)
       
-      try {
-        await TestOtter.start()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/an error/)
-      }
+      let error = await startupError(TestOtter)
+      expect(error).matches(/CUSTOM_ERROR/)
     })
     
     it('should let attributes process their values', async function() {
@@ -316,14 +296,8 @@ describe('Otter', function() {
     it('should fail if no adapters are set', async function() {
       
       let AnotherOtter = Otter.extend()
-      
-      try {
-        await AnotherOtter.start()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/No Adapters added/)
-      }
+      let error = await startupError(AnotherOtter)
+      expect(error).matches(/No Adapters added/)
     })
     
     it('should return itself for chaining', async function() {

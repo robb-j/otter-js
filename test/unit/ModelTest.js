@@ -1,12 +1,19 @@
 const expect = require('chai').expect
 const Otter = require('../../lib/Otter')
+const MemoryAdapter = require('../../lib/adapters/MemoryAdapter')
+
+const { makeModel } = require('../utils')
 
 
-class BaseTestModel extends Otter.Types.Model {
-  constructor(values) { super(values); this.callbacks = {} }
-  
-  static attributes() { return { name: String, pass: 'Secret' } }
-}
+// class BaseTestModel extends Otter.Types.Model {
+//   constructor(values) { super(values); this.callbacks = {} }
+//
+//   static attributes() { return { name: String, pass: 'Secret' } }
+// }
+
+// class SubModel extends Otter.Types.Model {
+//   static attributes() { return { isCool: Boolean } }
+// }
 
 class Secret extends Otter.Types.Attribute {
   get isProtected() { return true }
@@ -14,15 +21,20 @@ class Secret extends Otter.Types.Attribute {
 
 describe('Model', function() {
   
-  let TestOtter, TestModel
-  
+  let TestModel, SubTestModel, adapter
   beforeEach(async function() {
-    TestOtter = Otter.extend()
-    TestModel = class extends BaseTestModel { }
-    TestOtter.addModel(TestModel)
-    TestOtter.addAttribute(Secret)
-    TestOtter.use(Otter.Plugins.MemoryConnection)
-    await TestOtter.start()
+    adapter = new MemoryAdapter()
+    // TestModel = class extends BaseTestModel { }
+    TestModel = makeModel('TestModel', { name: String, pass: 'Secret' })
+    SubTestModel = class extends TestModel {
+      static attributes() { return { isCool: Boolean } }
+    }
+    await Otter.extend()
+      .addModel(TestModel)
+      .addModel(SubTestModel)
+      .addAttribute(Secret)
+      .addAdapter(adapter)
+      .start()
   })
   
   
@@ -30,25 +42,29 @@ describe('Model', function() {
   /* * * STATIC PROPERTIES * * */
   
   describe('::attributes', function() {
-    it('should contain id property', function() {
-      let props = TestModel.collectAttributes()
-      expect(props.id).to.exist
-    })
-    it('should contain createdAt property', function() {
-      let props = TestModel.collectAttributes()
-      expect(props.createdAt).to.exist
-    })
-    it('should contain updatedAt property', function() {
-      let props = TestModel.collectAttributes()
-      expect(props.updatedAt).to.exist
+    it('should be an empty object', async function() {
+      let props = Otter.Types.Model.attributes()
+      expect(props).to.deep.equal({})
     })
   })
   
   describe('::collectAttributes', function() {
-    it('should contain base properties', function() {
-      let base = TestModel.attributes()
-      let collected = TestModel.collectAttributes()
-      expect(collected).to.include(base)
+    it('should add its own attributes', async function() {
+      let attrs = TestModel.collectAttributes(adapter)
+      expect(attrs).to.have.property('name')
+      expect(attrs).to.have.property('pass')
+    })
+    it('should add the adapters default attributes', async function() {
+      let attrs = TestModel.collectAttributes(adapter)
+      expect(attrs).to.have.property('id')
+      expect(attrs).to.have.property('createdAt')
+      expect(attrs).to.have.property('updatedAt')
+    })
+    it('should merge properties with superclass', function() {
+      let attrs = SubTestModel.collectAttributes(adapter)
+      expect(attrs).to.have.property('name')
+      expect(attrs).to.have.property('pass')
+      expect(attrs).to.have.property('isCool')
     })
   })
   
