@@ -2,6 +2,8 @@ const expect = require('chai').expect
 const MemoryAdapter = require('../../../lib/adapters/MemoryAdapter')
 const Otter = require('../../../lib/Otter')
 
+// TODO: Refactor expect.fail(...) to asyncError(...)
+
 class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String } }
 }
@@ -193,8 +195,9 @@ describe('MemoryAdapter', function() {
   
   describe('#update', function() {
     
+    let models
     beforeEach(async function() {
-      await testAdapter.create('TestModel', [
+      models = await testAdapter.create('TestModel', [
         { name: 'Geoff' },
         { name: 'Terrance' }
       ])
@@ -235,6 +238,14 @@ describe('MemoryAdapter', function() {
       catch (error) {
         expect(error).matches(/unknown Attribute/)
       }
+    })
+    it('should update the updatedAt', async function() {
+      let before = models[0].updatedAt
+      await new Promise(resolve => setTimeout(resolve, 10))
+      await testAdapter.update('TestModel', models[0].id, { name: 'Tim' })
+      let after = (await testAdapter.find('TestModel', models[0].id))[0].updatedAt
+      
+      expect(after).to.not.deep.equal(before)
     })
   })
   

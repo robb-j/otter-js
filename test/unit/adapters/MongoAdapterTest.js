@@ -16,8 +16,8 @@ describe('MongoAdapter', function() {
   
   /* Test Lifecycle */
   before(async function() {
-    // Start an in-memory mongo on port 8080
-    memServer = new MongoInMemory(8080)
+    // Start an in-memory mongo on port 8008
+    memServer = new MongoInMemory(8008)
     await memServer.start()
   })
   
@@ -182,8 +182,10 @@ describe('MongoAdapter', function() {
   })
   
   describe('#find', function() {
+    
+    let models
     beforeEach(async function() {
-      await TestModel.create([
+      models = await TestModel.create([
         { name: 'Geoff' },
         { name: 'Mark' },
         { name: 'Trevor' },
@@ -202,11 +204,19 @@ describe('MongoAdapter', function() {
       let records = await testAdapter.find('TestModel', query, opts)
       expect(records).to.have.lengthOf(1)
     })
+    it('should match ids', async function() {
+      
+      let id = models[0].id
+      let model = (await testAdapter.find('TestModel', { id }))[0]
+      expect(model).to.exist
+    })
   })
   
   describe('#update', function() {
+    
+    let models
     beforeEach(async function() {
-      await TestModel.create([
+      models = await TestModel.create([
         { name: 'Geoff', age: 7 },
         { name: 'Mark', age: 21 },
         { name: 'Trevor', age: 19 },
@@ -233,6 +243,14 @@ describe('MongoAdapter', function() {
       expect(models[0]).to.have.property('age').that.equals(42)
       expect(models[1]).to.have.property('age').that.equals(42)
       expect(models[2]).to.have.property('age').that.equals(42)
+    })
+    it('should set the updatedAt on records', async function() {
+      let before = models[0].updatedAt
+      await new Promise(resolve => setTimeout(resolve, 10))
+      await testAdapter.update('TestModel', { }, { age: 42 })
+      let after = (await testAdapter.find('TestModel'))[0].updatedAt
+      
+      expect(after).to.not.deep.equal(before)
     })
   })
   

@@ -234,9 +234,6 @@ describe('Model', function() {
         expect(error).matches(/Update Guard/)
       }
     })
-    it('should update the updatedAt date', async function() {
-      
-    })
   })
   
   
