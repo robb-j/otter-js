@@ -95,6 +95,9 @@ describe('MongoAdapter', function() {
     it('should remove _updatedAt', function() {
       expect(r._updatedAt).to.equal(undefined)
     })
+    it('should thingy', async function() {
+      
+    })
   })
   
   describe('#packRecord', function() {
@@ -125,15 +128,32 @@ describe('MongoAdapter', function() {
     })
   })
   
-  describe('#prepareValuesForCreate', function() {
+  describe('#prepareRecordForCreate', function() {
     
     it('should add _createdAt', function() {
-      let vals = testAdapter.prepareValuesForCreate({})
-      expect(vals._createdAt).to.exist
+      let record = {}
+      testAdapter.prepareRecordForCreate(record)
+      expect(record).to.have.property('_createdAt')
     })
     it('should add _updatedAt', function() {
-      let vals = testAdapter.prepareValuesForCreate({})
-      expect(vals._updatedAt).to.exist
+      let record = {}
+      testAdapter.prepareRecordForCreate(record)
+      expect(record).to.have.property('_updatedAt')
+    })
+  })
+  
+  describe('#prepareRecordForUpdate', function() {
+    it('should remove reserved values', async function() {
+      let record = { id: 1001, createdAt: new Date(), updatedAt: new Date() }
+      testAdapter.prepareRecordForUpdate(record)
+      expect(record.id).to.equal(undefined)
+      expect(record.createdAt).to.equal(undefined)
+      expect(record.updatedAt).to.equal(undefined)
+    })
+    it('should add an _updatedAt', async function() {
+      let record = {}
+      testAdapter.prepareRecordForUpdate(record)
+      expect(record).to.have.property('_updatedAt')
     })
   })
   

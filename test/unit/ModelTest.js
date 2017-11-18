@@ -128,7 +128,6 @@ describe('Model', function() {
     it('should return matching models', async function() {
       let matches = await TestModel.find({name: 'Terrance'})
       expect(matches).to.have.lengthOf(1)
-      console.log(matches[0].constructor.name)
       expect(matches[0].name).to.equal('Terrance')
     })
     it('should use options', async function() {
