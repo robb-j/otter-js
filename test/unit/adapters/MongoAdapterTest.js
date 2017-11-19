@@ -1,8 +1,10 @@
 const expect = require('chai').expect
 const MongoInMemory = require('mongo-in-memory')
-const MongoClient = require('mongodb').MongoClient
+const { MongoClient, ObjectID } = require('mongodb')
 const MongoAdapter = require('../../../lib/adapters/MongoAdapter')
 const Otter = require('../../../lib/Otter')
+
+const { ObjectIDAttribute, HasOneAttribute } = require('../../../lib/attributes')
 
 class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String, age: Number } }
@@ -95,17 +97,15 @@ describe('MongoAdapter', function() {
     it('should remove _updatedAt', function() {
       expect(r._updatedAt).to.equal(undefined)
     })
-    it('should thingy', async function() {
-      
-    })
   })
   
   describe('#packRecord', function() {
-    let r
     
+    let r
     beforeEach(function() {
+      let fakeSchema = {}
       r = { id: 'a', createdAt: 'b', updatedAt: 'c' }
-      testAdapter.packRecord(r)
+      testAdapter.packRecord(r, fakeSchema)
     })
     
     it('should pack id', function() {
@@ -125,6 +125,18 @@ describe('MongoAdapter', function() {
     })
     it('should remove updatedAt', function() {
       expect(r.updatedAt).to.equal(undefined)
+    })
+    it('should map ObjectID attributes', async function() {
+      let schema = { name: new ObjectIDAttribute('name', 'ModelName') }
+      let record = { name: '5a0caa5ec4de7f00364f3032' }
+      testAdapter.packRecord(record, schema)
+      expect(record.name).to.be.instanceof(ObjectID)
+    })
+    it('should map HasOne attributes', async function() {
+      let schema = { name: new HasOneAttribute('name', 'ModelName') }
+      let record = { name: '5a0caa5ec4de7f00364f3032' }
+      testAdapter.packRecord(record, schema)
+      expect(record.name).to.be.instanceof(ObjectID)
     })
   })
   
