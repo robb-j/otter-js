@@ -15,6 +15,40 @@ describe('HasOneAttribute', function() {
     })
   })
   
+  describe('#valueMatchesType', function() {
+    
+    let Parent, Child, attr
+    beforeEach(async function() {
+      
+      Parent = makeModel('Parent', {
+        child: { hasOne: 'Child' }
+      })
+      
+      Child = makeModel('Child', { })
+      
+      await Otter.extend()
+        .addModel(Parent)
+        .addModel(Child)
+        .use(Otter.Plugins.MemoryConnection)
+        .start()
+      
+      attr = Parent.schema.child
+    })
+    
+    it('should validate using TargetModel.id', async function() {
+      
+      let called = false
+      Child.schema.id.valueMatchesType = () => {
+        called = true
+        return true
+      }
+      
+      attr.valueMatchesType('1234')
+      expect(called).to.equal(true)
+      
+    })
+  })
+  
   describe('#validateSelf', function() {
     
     let TestOtter, Parent
