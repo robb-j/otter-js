@@ -2,15 +2,21 @@ const expect = require('chai').expect
 const QueryPromise = require('../../../lib/promises/QueryPromise')
 const Otter = require('../../../lib/Otter')
 
+const { makeModel } = require('../../utils')
+
 describe('QueryPromise', function() {
   
-  let query, promise
+  let query, promise, TestModel
   
   beforeEach(async function() {
-    query = new Otter.Types.Query('TestModel')
-    promise = new QueryPromise((resolve) => {
-      resolve()
-    }, query)
+    TestModel = makeModel('TestModel', { name: String })
+    await Otter.extend()
+      .use(Otter.Plugins.MemoryConnection)
+      .addModel(TestModel)
+      .start()
+    
+    query = new Otter.Types.Query(TestModel)
+    promise = new QueryPromise(resolve => resolve(), query)
   })
   
   describe('#constructor', function() {

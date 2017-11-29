@@ -1,1 +1,5 @@
-module.exports = require('require-directory')(module)
+
+module.exports = {
+  asyncError: require('./asyncError'),
+  makeModel: require('./makeModel')
+}

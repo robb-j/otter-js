@@ -2,18 +2,18 @@ const expect = require('chai').expect
 const MemoryAdapter = require('../../../lib/adapters/MemoryAdapter')
 const Otter = require('../../../lib/Otter')
 
+const { makeModel, asyncError } = require('../../utils')
+
 // TODO: Refactor expect.fail(...) to asyncError(...)
 
-class TestModel extends Otter.Types.Model {
-  static attributes() { return { name: String } }
-}
 
 describe('MemoryAdapter', function() {
   
-  let testAdapter
+  let testAdapter, TestModel
   
   beforeEach(async function() {
     testAdapter = new MemoryAdapter()
+    TestModel = makeModel('TestModel', { name: String })
     
     await Otter.extend().use(o => {
       o.addAdapter(testAdapter)
@@ -60,19 +60,19 @@ describe('MemoryAdapter', function() {
     })
     
     it('should match all by default', function() {
-      let q = new Otter.Types.Query('TestModel')
+      let q = new Otter.Types.Query(TestModel)
       testAdapter.validateModelQuery(q)
       let res = testAdapter.processQuery(q)
       expect(res).to.have.lengthOf(2)
     })
     it('should match records', function() {
-      let q = new Otter.Types.Query('TestModel', { name: 'Bob' })
+      let q = new Otter.Types.Query(TestModel, { name: 'Bob' })
       testAdapter.validateModelQuery(q)
       let res = testAdapter.processQuery(q)
       expect(res[0]).to.have.property('name', 'Bob')
     })
     it('should cut of after limit', function() {
-      let q = new Otter.Types.Query('TestModel', {}, { limit: 1 })
+      let q = new Otter.Types.Query(TestModel, {}, { limit: 1 })
       let res = testAdapter.processQuery(q)
       expect(res).to.have.lengthOf(1)
     })
@@ -213,12 +213,12 @@ describe('MemoryAdapter', function() {
       }
     })
     it('should update values which match the query', async function() {
-      await testAdapter.update('TestModel', 1, { name: 'Terry' })
-      let models = await testAdapter.find('TestModel', 1)
+      await testAdapter.update('TestModel', '1', { name: 'Terry' })
+      let models = await testAdapter.find('TestModel', '1')
       expect(models[0]).to.have.property('name').that.equals('Terry')
     })
     it('should return updated record count', async function() {
-      let n = await testAdapter.update('TestModel', 1, { name: 'Terry' })
+      let n = await testAdapter.update('TestModel', '1', { name: 'Terry' })
       expect(n).to.equal(1)
     })
     it('should fail for unknown queries', async function() {
@@ -232,7 +232,7 @@ describe('MemoryAdapter', function() {
     })
     it('should fail for unknown values', async function() {
       try {
-        await testAdapter.update('TestModel', 1, { age: 7 })
+        await testAdapter.update('TestModel', '1', { age: 7 })
         expect.fail('Should throw')
       }
       catch (error) {
@@ -259,16 +259,13 @@ describe('MemoryAdapter', function() {
     })
     
     it('should fail if the model is not registered', async function() {
-      try {
-        await testAdapter.destroy('InvalidModel', {})
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).to.exist
-      }
+      let error = await asyncError(() => {
+        return testAdapter.destroy('InvalidModel', {})
+      })
+      expect(error).matches(/unknown Model/)
     })
     it('should remove the value', async function() {
-      await testAdapter.destroy('TestModel', 1)
+      await testAdapter.destroy('TestModel', '1')
       let models = await testAdapter.find('TestModel', {})
       expect(models).to.have.lengthOf(1)
     })

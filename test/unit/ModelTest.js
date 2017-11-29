@@ -207,7 +207,7 @@ describe('Model', function() {
       expect(models[1].name).to.equal('Bob')
     })
     it('should update matching records', async function() {
-      await TestModel.update(2, { name: 'Bob' })
+      await TestModel.update('2', { name: 'Bob' })
       let models = await TestModel.find()
       expect(models[0].name).to.equal('Geoff')
       expect(models[1].name).to.equal('Bob')
@@ -332,7 +332,7 @@ describe('Model', function() {
       expect(m.adapter.store.TestModel[1].name).to.equal('Terrance')
     })
     it('should fail updating a model that does not exist', async function() {
-      let m = new TestModel({ id: 1, name: 'Geoff' })
+      let m = new TestModel({ id: '1', name: 'Geoff' })
       try {
         await m.save()
         expect.fail('Should throw')
@@ -349,7 +349,7 @@ describe('Model', function() {
       let m = await TestModel.create({ name: 'Geoff' })
       await m.destroy()
       
-      let found = await TestModel.findOne(1)
+      let found = await TestModel.findOne('1')
       expect(found).to.be.null
     })
     it('should fail if the model isn\'t created yet', async function() {
@@ -365,7 +365,7 @@ describe('Model', function() {
     })
     it('should fail if model does not exist', async function() {
       
-      let m = new TestModel({ id: 1, name: 'Geoff' })
+      let m = new TestModel({ id: '1', name: 'Geoff' })
       
       try {
         await m.destroy()

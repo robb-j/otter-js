@@ -2,13 +2,20 @@ const expect = require('chai').expect
 const Adapter = require('../../lib/Adapter')
 const Otter = require('../../lib/Otter')
 
+let { makeModel } = require('../utils')
+
 
 describe('Adapter', function() {
   
-  let testAdapter
+  let testAdapter, TestModel
   
-  beforeEach(function() {
+  beforeEach(async function() {
+    TestModel = makeModel('TestModel')
     testAdapter = new Adapter()
+    await Otter.extend()
+      .addAdapter(testAdapter)
+      .addModel(TestModel)
+      .start()
   })
   
   describe('#constructor', function() {
@@ -87,13 +94,17 @@ describe('Adapter', function() {
       expect(q).to.be.instanceOf(Otter.Types.Query)
     })
     it('should return a query instance if passed one', function() {
-      let query = new Otter.Types.Query()
+      let query = new Otter.Types.Query(TestModel)
       let result = testAdapter.makeQuery('TestModel', query)
       expect(result).to.equal(query)
     })
     it('should set the options on the query', function() {
       let query = testAdapter.makeQuery('TestModel', '77', { limit: 7 })
       expect(query.limit).to.equal(7)
+    })
+    it('should throw an error if not a valid model', async function() {
+      let makingQuery = () => testAdapter.makeQuery('InvalidModel')
+      expect(makingQuery).to.throw(/unknown Model/)
     })
   })
   
@@ -126,19 +137,19 @@ describe('Adapter', function() {
   
     describe('#validateModelQuery', function() {
       it('should pass', function() {
-        let query = new Otter.Types.Query('ModelA')
+        let query = new Otter.Types.Query(ModelA)
         testAdapter.validateModelQuery(query)
       })
       it('should fail with invalid models', function() {
-        let query = new Otter.Types.Query('BadModel')
+        let BadModel = makeModel('BadModel')
         let callingValidate = () => {
-          testAdapter.validateModelQuery(query)
+          testAdapter.validateModelQuery(new Otter.Types.Query(BadModel))
         }
         expect(callingValidate).to.throw(/unknown Model/)
       })
       it('should fail with unknown where attributes', function() {
         
-        let query = new Otter.Types.Query('ModelA', { age: 5 })
+        let query = new Otter.Types.Query(ModelA, { age: 5 })
         let callingValidate = () => {
           testAdapter.validateModelQuery(query)
         }

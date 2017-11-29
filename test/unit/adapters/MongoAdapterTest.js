@@ -10,7 +10,7 @@ class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String, age: Number } }
 }
 
-describe('MongoAdapter', function() {
+describe.only('MongoAdapter', function() {
   
   let memServer, dbUrl
   let dbIndex = 0
@@ -320,28 +320,28 @@ describe('MongoAdapter', function() {
   /* Query Processing */
   describe('#genMongoQuery', function() {
     it('should process to mongo query', async function() {
-      let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
+      let query = new Otter.Types.Query(TestModel, { name: 'Mark' })
       query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
       
       expect(mq).to.have.property('name').that.equals('Mark')
     })
     it('should move id to _id', async function() {
-      let query = new Otter.Types.Query('TestModel', { id: '1234' })
+      let query = new Otter.Types.Query(TestModel, { id: '1234' })
       query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
       expect(mq).to.not.have.property('id')
       expect(mq).to.have.property('_id')
     })
     it('should move createdAt to _createdAt', async function() {
-      let query = new Otter.Types.Query('TestModel', { createdAt: new Date() })
+      let query = new Otter.Types.Query(TestModel, { createdAt: new Date() })
       query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
       expect(mq).to.not.have.property('createdAt')
       expect(mq).to.have.property('_createdAt')
     })
     it('should move updatedAt to _updatedAt', async function() {
-      let query = new Otter.Types.Query('TestModel', { updatedAt: new Date() })
+      let query = new Otter.Types.Query(TestModel, { updatedAt: new Date() })
       query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
       expect(mq).to.not.have.property('updatedAt')
