@@ -10,7 +10,7 @@ class TestModel extends Otter.Types.Model {
   static attributes() { return { name: String, age: Number } }
 }
 
-describe.only('MongoAdapter', function() {
+describe('MongoAdapter', function() {
   
   let memServer, dbUrl
   let dbIndex = 0
