@@ -327,7 +327,7 @@ describe('MongoAdapter', function() {
       expect(mq).to.have.property('name').that.equals('Mark')
     })
     it('should move id to _id', async function() {
-      let query = new Otter.Types.Query(TestModel, { id: '1234' })
+      let query = new Otter.Types.Query(TestModel, { id: '507f191e810c19729de860ea' })
       query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
       expect(mq).to.not.have.property('id')

@@ -10,4 +10,12 @@ describe('DateAttribute', function() {
     })
   })
   
+  describe('#valueMatchesType', function() {
+    it('should match dates', async function() {
+      let attr = new DateAttribute()
+      let result = attr.valueMatchesType(new Date())
+      expect(result).to.equal(true)
+    })
+  })
+  
 })

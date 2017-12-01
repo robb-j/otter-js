@@ -4,8 +4,6 @@ const Otter = require('../../../lib/Otter')
 
 const { makeModel, asyncError } = require('../../utils')
 
-// TODO: Refactor expect.fail(...) to asyncError(...)
-
 
 describe('MemoryAdapter', function() {
   
@@ -96,13 +94,10 @@ describe('MemoryAdapter', function() {
   
   describe('#checkModelName', function() {
     it('should throw an error for an unknown model', async function() {
-      try {
-        await testAdapter.checkModelName('InvalidModel', {})
-        expect.fail('Should throw an error')
-      }
-      catch (error) {
-        expect(error).matches(/Cannot query unknown Model/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.checkModelName('InvalidModel', {})
+      })
+      expect(error).matches(/unknown Model/)
     })
     it('should not throw an error for a known model', async function() {
       await testAdapter.checkModelName('TestModel', {})
@@ -135,23 +130,22 @@ describe('MemoryAdapter', function() {
       expect(records[0]).to.have.property('updatedAt')
     })
     it('should fail if an unknown Models', async function() {
-      try {
-        await testAdapter.create('AnotherModel', [ { name: 'Geoff' } ])
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/unknown Model/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.create('AnotherModel', [ { name: 'Geoff' } ])
+      })
+      expect(error).matches(/unknown Model/)
     })
     it('should fail for unknown values', async function() {
-      
-      try {
-        await testAdapter.create('TestModel', [ { age: 7 } ])
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/unknown Attribute/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.create('TestModel', [ { age: 7 } ])
+      })
+      expect(error).matches(/unknown Attribute/)
+    })
+    it('should fail for unknown models', async function() {
+      let error = await asyncError(() => {
+        return testAdapter.create('InvalidModel')
+      })
+      expect(error).matches(/unknown Model/)
     })
   })
   
@@ -166,13 +160,10 @@ describe('MemoryAdapter', function() {
     })
     
     it('should fail if the model is not registered', async function() {
-      try {
-        await testAdapter.find('InvalidModel', {})
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Cannot query unknown Model/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.find('InvalidModel', {})
+      })
+      expect(error).matches(/Cannot query unknown Model/)
     })
     it('should process a raw query', async function() {
       let res = await testAdapter.find('TestModel', { name: 'Terrance' })
@@ -183,13 +174,10 @@ describe('MemoryAdapter', function() {
       expect(res).to.be.lengthOf(3)
     })
     it('should fail for invalid queries', async function() {
-      try {
-        await testAdapter.find('TestModel', { age: 7 })
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/unknown Attribute/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.find('TestModel', { age: 7 })
+      })
+      expect(error).matches(/unknown Attribute/)
     })
   })
   
@@ -204,13 +192,10 @@ describe('MemoryAdapter', function() {
     })
     
     it('should fail if the model is not registered', async function() {
-      try {
-        await testAdapter.update('InvalidModel', {})
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Cannot query unknown Model/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.update('InvalidModel', {})
+      })
+      expect(error).matches(/Cannot query unknown Model/)
     })
     it('should update values which match the query', async function() {
       await testAdapter.update('TestModel', '1', { name: 'Terry' })
@@ -222,22 +207,16 @@ describe('MemoryAdapter', function() {
       expect(n).to.equal(1)
     })
     it('should fail for unknown queries', async function() {
-      try {
-        await testAdapter.update('TestModel', { age: 7 }, { name: 'Terry' })
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/unknown Attribute/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.update('TestModel', { age: 7 }, { name: 'Terry' })
+      })
+      expect(error).matches(/unknown Attribute/)
     })
     it('should fail for unknown values', async function() {
-      try {
-        await testAdapter.update('TestModel', '1', { age: 7 })
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/unknown Attribute/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.update('TestModel', '1', { age: 7 })
+      })
+      expect(error).matches(/unknown Attribute/)
     })
     it('should update the updatedAt', async function() {
       let before = models[0].updatedAt
@@ -274,13 +253,10 @@ describe('MemoryAdapter', function() {
       expect(count).to.equal(2)
     })
     it('should fail for unknown queries', async function() {
-      try {
-        await testAdapter.destroy('TestModel', { age: 7 })
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/unknown Attribute/)
-      }
+      let error = await asyncError(() => {
+        return testAdapter.destroy('TestModel', { age: 7 })
+      })
+      expect(error).matches(/unknown Attribute/)
     })
   })
   
