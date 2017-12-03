@@ -56,4 +56,19 @@ describe('QueryPromise', function() {
     })
   })
   
+  describe('#first', function() {
+    it('should set singular', async function() {
+      promise.first()
+      expect(query.singular).to.equal(true)
+    })
+    it('should set the limit', async function() {
+      promise.first()
+      expect(query.limit).to.equal(1)
+    })
+    it('should be chainable', async function() {
+      let returned = promise.first()
+      expect(returned).to.equal(promise)
+    })
+  })
+  
 })

@@ -93,15 +93,6 @@ describe('Otter', function() {
       expect(TestOtter.active.models.TestModel).to.exist
     })
     
-    it('should fail if already registered', function() {
-      
-      TestOtter.addModel(TestModel)
-      
-      let addingModel = () => { TestOtter.addModel(TestModel) }
-      
-      expect(addingModel).to.throw(/Model already registered/)
-    })
-    
     it('should return itself for chaining', function() {
       expect(TestOtter.addModel(TestModel)).to.equal(TestOtter)
     })
@@ -113,12 +104,6 @@ describe('Otter', function() {
     it('should store the attribute', function() {
       TestOtter.addAttribute(TestAttribute)
       expect(TestOtter.active.attributes.TestAttribute).to.exist
-    })
-    
-    it('should fail if already registered', function() {
-      TestOtter.addAttribute(TestAttribute)
-      let addingAttribute = () => { TestOtter.addAttribute(TestAttribute) }
-      expect(addingAttribute).to.throw(/Attribute already registered/)
     })
     
     it('should return itself for chaining', function() {
