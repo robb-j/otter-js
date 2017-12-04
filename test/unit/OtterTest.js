@@ -3,7 +3,7 @@ const Otter = require('../../lib/Otter')
 
 class TestAttribute extends Otter.Types.Attribute {}
 
-const { asyncError, makeModel } = require('../utils')
+const { asyncError, makeModel, makeCluster } = require('../utils')
 
 function startupError(Otter) {
   return asyncError(() => Otter.start())
@@ -12,10 +12,11 @@ function startupError(Otter) {
 
 describe('Otter', function() {
   
-  let TestOtter, TestModel
+  let TestOtter, TestModel, TestCluster
   beforeEach(function() {
     TestOtter = Otter.extend()
     TestModel = makeModel('TestModel', { })
+    TestCluster = makeCluster('TestCluster', { })
   })
   
   
@@ -95,6 +96,17 @@ describe('Otter', function() {
     
     it('should return itself for chaining', function() {
       expect(TestOtter.addModel(TestModel)).to.equal(TestOtter)
+    })
+  })
+  
+  
+  describe('#addCluster', function() {
+    it('should store the cluster', async function() {
+      TestOtter.addCluster(TestCluster)
+      expect(TestOtter.active.clusters.TestCluster).to.exist
+    })
+    it('should return itself for chaining', async function() {
+      expect(TestOtter.addCluster(TestCluster)).to.equal(TestOtter)
     })
   })
   

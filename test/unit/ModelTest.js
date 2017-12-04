@@ -5,34 +5,15 @@ const MemoryAdapter = require('../../lib/adapters/MemoryAdapter')
 const { makeModel } = require('../utils')
 
 
-// class BaseTestModel extends Otter.Types.Model {
-//   constructor(values) { super(values); this.callbacks = {} }
-//
-//   static attributes() { return { name: String, pass: 'Secret' } }
-// }
-
-// class SubModel extends Otter.Types.Model {
-//   static attributes() { return { isCool: Boolean } }
-// }
-
-class Secret extends Otter.Types.Attribute {
-  get isProtected() { return true }
-}
-
 describe('Model', function() {
   
-  let TestModel, SubTestModel, adapter
+  let TestModel, adapter
   beforeEach(async function() {
     adapter = new MemoryAdapter()
     // TestModel = class extends BaseTestModel { }
-    TestModel = makeModel('TestModel', { name: String, pass: 'Secret' })
-    SubTestModel = class extends TestModel {
-      static attributes() { return { isCool: Boolean } }
-    }
+    TestModel = makeModel('TestModel', { name: String })
     await Otter.extend()
       .addModel(TestModel)
-      .addModel(SubTestModel)
-      .addAttribute(Secret)
       .addAdapter(adapter)
       .start()
   })
@@ -41,62 +22,16 @@ describe('Model', function() {
   
   /* * * STATIC PROPERTIES * * */
   
-  describe('::attributes', function() {
-    it('should be an empty object', async function() {
-      let props = Otter.Types.Model.attributes()
-      expect(props).to.deep.equal({})
-    })
-  })
-  
   describe('::collectAttributes', function() {
     it('should add its own attributes', async function() {
       let attrs = TestModel.collectAttributes(adapter)
       expect(attrs).to.have.property('name')
-      expect(attrs).to.have.property('pass')
     })
     it('should add the adapters default attributes', async function() {
       let attrs = TestModel.collectAttributes(adapter)
       expect(attrs).to.have.property('id')
       expect(attrs).to.have.property('createdAt')
       expect(attrs).to.have.property('updatedAt')
-    })
-    it('should merge properties with superclass', function() {
-      let attrs = SubTestModel.collectAttributes(adapter)
-      expect(attrs).to.have.property('name')
-      expect(attrs).to.have.property('pass')
-      expect(attrs).to.have.property('isCool')
-    })
-  })
-  
-  describe('::adapterName', function() {
-    it('should have a default value of "default"', function() {
-      expect(TestModel.adapterName()).to.equal('default')
-    })
-  })
-  
-  describe('::adapter', function() {
-    it('should return the adapter when set', function() {
-      let adapter = {}
-      TestModel._adapter = adapter
-      expect(TestModel.adapter).to.equal(adapter)
-    })
-  })
-  
-  describe('::schema', function() {
-    it('should return the schema when set', function() {
-      let schema = {}
-      TestModel._schema = schema
-      expect(TestModel.schema).to.equal(schema)
-    })
-  })
-  
-  describe('::isActive', function() {
-    it('should be false by default', function() {
-      class NewModel extends Otter.Types.Model {}
-      expect(NewModel.isActive).to.equal(false)
-    })
-    it('should be true when an adapter & schema is set', function() {
-      expect(TestModel.isActive).to.equal(true)
     })
   })
   
@@ -237,37 +172,7 @@ describe('Model', function() {
   
   
   
-  /* * * STATIC HOOKS * * */
-  
-  describe('::validateValues', function() {
-    it('should not throw', function() {
-      TestModel.validateValues({})
-    })
-  })
-  
-  describe('::processValues', function() {
-    it('should exist', function() {
-      expect(TestModel.processValues).to.be.a('function')
-    })
-  })
-  
-  
-  
   /* * * INSTANCE PROPERTIES * * */
-  
-  describe('#adapter', function() {
-    it('should return the adapter when set', function() {
-      let m = new TestModel()
-      expect(m.adapter).to.equal(TestModel.adapter)
-    })
-  })
-  
-  describe('#schema', function() {
-    it('should return the schema when set', function() {
-      let m = new TestModel()
-      expect(m.schema).to.equal(TestModel.schema)
-    })
-  })
   
   describe('#modelName', function() {
     it('should return the name of the model', function() {
@@ -290,26 +195,6 @@ describe('Model', function() {
   
   
   /* * * INSTANCE METHODS * * */
-  
-  describe('#constructor', function() {
-    it('should store the values', function() {
-      let vals = {}
-      let m = new TestModel(vals)
-      expect(m.values).to.equal(vals)
-    })
-    it('should set the id to null', function() {
-      let m = new TestModel()
-      expect(m.id).to.be.null
-    })
-    it('should use values fallback', function() {
-      let m = new TestModel()
-      expect(m.values).to.exist
-    })
-    it('should install values via attributes', function() {
-      let m = new TestModel({ name: 'Geoff' })
-      expect(m.name).to.equal('Geoff')
-    })
-  })
   
   describe('#save', function() {
     it('should add a model to the store', async function() {
@@ -374,28 +259,6 @@ describe('Model', function() {
       catch (error) {
         expect(error).matches(/that doesn't exist/)
       }
-    })
-  })
-  
-  describe('#inspect', function() {
-    it('should return its values', function() {
-      let m = new TestModel({name: 'Geoff'})
-      let object = m.inspect()
-      expect(object.id).to.equal(m.values.id)
-      expect(object.name).to.equal(m.values.name)
-      expect(object.createdAt).to.equal(m.values.createdAt)
-      expect(object.updatedAt).to.equal(m.values.updatedAt)
-    })
-  })
-  
-  describe('#toJSON', function() {
-    it('should return its values', function() {
-      let m = new TestModel({name: 'Geoff'})
-      let object = m.toJSON()
-      expect(object.id).to.equal(m.values.id)
-      expect(object.name).to.equal(m.values.name)
-      expect(object.createdAt).to.equal(m.values.createdAt)
-      expect(object.updatedAt).to.equal(m.values.updatedAt)
     })
   })
   

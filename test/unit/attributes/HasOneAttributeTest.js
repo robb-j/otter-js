@@ -26,11 +26,16 @@ describe('HasOneAttribute', function() {
       
       Child = makeModel('Child', { })
       
-      await Otter.extend()
-        .addModel(Parent)
-        .addModel(Child)
-        .use(Otter.Plugins.MemoryConnection)
-        .start()
+      try {
+        await Otter.extend()
+          .use(Otter.Plugins.MemoryConnection)
+          .addModel(Parent)
+          .addModel(Child)
+          .start()
+      }
+      catch (error) {
+        console.log(error)
+      }
       
       attr = Parent.schema.child
     })
