@@ -17,7 +17,7 @@ describe('HasOneAttribute', function() {
   
   describe('#valueMatchesType', function() {
     
-    let Parent, Child, attr
+    let Parent, Child
     beforeEach(async function() {
       
       Parent = makeModel('Parent', {
@@ -26,18 +26,11 @@ describe('HasOneAttribute', function() {
       
       Child = makeModel('Child', { })
       
-      try {
-        await Otter.extend()
-          .use(Otter.Plugins.MemoryConnection)
-          .addModel(Parent)
-          .addModel(Child)
-          .start()
-      }
-      catch (error) {
-        console.log(error)
-      }
-      
-      attr = Parent.schema.child
+      await Otter.extend()
+        .use(Otter.Plugins.MemoryConnection)
+        .addModel(Parent)
+        .addModel(Child)
+        .start()
     })
     
     it('should validate using TargetModel.id', async function() {
@@ -48,9 +41,32 @@ describe('HasOneAttribute', function() {
         return true
       }
       
-      attr.valueMatchesType('1234')
+      Parent.schema.child.valueMatchesType('1234')
       expect(called).to.equal(true)
+    })
+  })
+  
+  describe('#prepareValueForQuery', function() {
+    
+    let Parent, Child
+    beforeEach(async function() {
+      Parent = makeModel('Parent', {
+        child: { hasOne: 'Child' }
+      })
+      Child = makeModel('Child', { })
       
+      await Otter.extend()
+        .use(Otter.Plugins.MemoryConnection)
+        .addModel(Parent)
+        .addModel(Child)
+        .start()
+    })
+    
+    it('should proxy to the targets id', async function() {
+      let called = false
+      Child.schema.id.prepareValueForQuery = () => { called = true }
+      Parent.schema.child.prepareValueForQuery('some')
+      expect(called).to.equal(true)
     })
   })
   
