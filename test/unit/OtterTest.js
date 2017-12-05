@@ -115,7 +115,7 @@ describe('Otter', function() {
     
     it('should store the attribute', function() {
       TestOtter.addAttribute(TestAttribute)
-      expect(TestOtter.active.attributes.TestAttribute).to.exist
+      expect(TestOtter.active.attributes.Test).to.exist
     })
     
     it('should return itself for chaining', function() {
