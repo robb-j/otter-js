@@ -27,7 +27,11 @@ describe('NestOneAttribute', function() {
     })
   })
   
-  describe('#valueMatchesType', function() {
+  describe('#enumOptions', function() {
+    it('should override to null to disable', async function() {
+      let attr = new NestOneAttribute()
+      expect(attr.enumOptions).to.equal(null)
+    })
   })
   
   describe('#prepareValueForQuery', function() {
@@ -76,6 +80,15 @@ describe('NestOneAttribute', function() {
     })
     it('should register cluster\'s attributes', async function() {
       expect(entity.comp.name).to.equal('Geoff')
+    })
+  })
+  
+  describe('#validateModelValue', function() {
+    it('should use the clusters validation', async function() {
+      await TestOtter.start()
+      let value = { name: 7 }
+      let error = await asyncError(() => Entity.schema.comp.validateModelValue(value))
+      expect(error).to.have.property('code', 'attr.validation.type')
     })
   })
   

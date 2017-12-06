@@ -175,7 +175,7 @@ describe('HasOneAttribute', function() {
     })
     
     it('should store the target type', async function() {
-      expect(ModelA.schema.brother.targetModel).to.equal(ModelB)
+      expect(ModelA.schema.brother.TargetModel).to.equal(ModelB)
     })
     
   })
