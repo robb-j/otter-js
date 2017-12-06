@@ -81,6 +81,29 @@ describe('NestOneAttribute', function() {
     it('should register cluster\'s attributes', async function() {
       expect(entity.comp.name).to.equal('Geoff')
     })
+    
+    describe('model#[name]', function() {
+      it('should retrieve the cluster', async function() {
+        expect(entity.comp).to.exist
+      })
+      it('should set to a new instance of cluster', async function() {
+        let newComp = new Component({ name: 'new' })
+        entity.comp = newComp
+        expect(entity.comp).to.equal(newComp)
+        expect(entity.values.comp).to.equal(newComp.values)
+      })
+      it('should set to null', async function() {
+        entity.comp = null
+        expect(entity.comp).to.equal(null)
+        expect(entity.values.comp).to.equal(null)
+      })
+      it('should create a new cluster', async function() {
+        let e2 = new Entity({ })
+        e2.comp = { name: 'new' }
+        expect(e2.comp).to.be.an.instanceOf(Component)
+        expect(e2.values.comp).to.have.property('name', 'new')
+      })
+    })
   })
   
   describe('#validateModelValue', function() {
