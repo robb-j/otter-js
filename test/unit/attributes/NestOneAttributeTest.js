@@ -6,7 +6,7 @@ const Otter = require('../../../lib/Otter')
 const { asyncError, makeModel, makeCluster } = require('../../utils')
 
 
-describe.only('NestOneAttribute', function() {
+describe('NestOneAttribute', function() {
   
   let Entity, Component, TestOtter
   beforeEach(async function() {

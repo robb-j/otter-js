@@ -133,6 +133,15 @@ describe('Cluster', function() {
     })
   })
   
+  describe('#validate', function() {
+    
+    it('should return any errors thrown', async function() {
+      let obj = new TestCluster({ name: 7, age: 'Bob' })
+      let error = obj.validate()
+      expect(error).to.exist
+    })
+  })
+  
   describe('#inspect', function() {
     it('should return its values', function() {
       let m = new TestCluster({name: 'Geoff', age: 7})

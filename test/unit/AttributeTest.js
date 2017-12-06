@@ -1,6 +1,8 @@
 const expect = require('chai').expect
 const Otter = require('../../lib/Otter')
 
+const { asyncError } = require('../utils')
+
 
 class TestAttribute extends Otter.Types.Attribute {
   get valueType() { return 'string' }
@@ -81,6 +83,34 @@ describe('Attribute', function() {
   })
   
   
+  describe('#validateModelValue', function() {
+    it('should fail if not of the same type', async function() {
+      let attr = new TestAttribute('name', 'TestModel')
+      let error = await asyncError(() => attr.validateModelValue(7))
+      expect(error.code).to.equal('attr.validation.type')
+    })
+    it('should fail if not in enum options', async function() {
+      let attr = new TestAttribute('name', 'TestModel', {
+        enum: ['A', 'B', 'C']
+      })
+      let error = await asyncError(() => attr.validateModelValue('D'))
+      expect(error.code).to.equal('attr.validation.enum')
+    })
+    it('should fail if the validator returns false', async function() {
+      let attr = new TestAttribute('name', 'TestModel', {
+        validator: (val) => false
+      })
+      let error = await asyncError(() => attr.validateModelValue('any'))
+      expect(error.code).to.equal('attr.validation.custom')
+    })
+    it('should fail if required & missing', async function() {
+      let attr = new TestAttribute('name', 'TestModel', { required: true })
+      let error = await asyncError(() => attr.validateModelValue(null))
+      expect(error.code).to.equal('attr.validation.missing')
+    })
+  })
+  
+  
   describe('#fullName', function() {
     it('should format class and attribute name', function() {
       let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
@@ -103,6 +133,10 @@ describe('Attribute', function() {
       let attr = new Otter.Types.Attribute('myAttr', 'MyModel', options)
       expect(attr.isProtected).to.equal(true)
     })
+    it('should false by default', async function() {
+      let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
+      expect(attr.isProtected).to.equal(false)
+    })
   })
   
   
@@ -111,6 +145,19 @@ describe('Attribute', function() {
       let options = { required: true }
       let attr = new Otter.Types.Attribute('myAttr', 'MyModel', options)
       expect(attr.isRequired).to.equal(true)
+    })
+    it('should be false by default', async function() {
+      let attr = new Otter.Types.Attribute('myAttr', 'MyModel')
+      expect(attr.isRequired).to.equal(false)
+    })
+  })
+  
+  
+  describe('#defaultValue', function() {
+    it('should use the default from options', async function() {
+      let options = { default: 7 }
+      let attr = new Otter.Types.Attribute('myAttr', 'MyModel', options)
+      expect(attr.defaultValue).to.equal(7)
     })
   })
   
