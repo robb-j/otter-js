@@ -8,11 +8,12 @@
     "url": "https://github.com/robb-j/otter-js"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha",
+    "test": "node_modules/.bin/mocha test",
     "docs": "node_modules/.bin/apidoc -i lib/ -o docs/ --silent",
     "coverage": "node_modules/.bin/nyc --reporter=html node_modules/.bin/mocha && open coverage/index.html",
     "coverage-summary": "node_modules/.bin/nyc --reporter=text-summary node_modules/.bin/mocha",
-    "start": "node lib/index.js"
+    "start": "node lib/experiments.js",
+    "one-time-mongo": "docker run -it --rm -p 27017:27017 mongo"
   },
   "author": "robb-j",
   "license": "ISC",
