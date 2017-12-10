@@ -69,20 +69,20 @@ describe('OtterError', function() {
     })
     
     it('should make a new error', async function() {
-      let error = OtterError.composite(e1, e2)
+      let error = OtterError.composite([e1, e2])
       expect(error).to.exist
     })
     it('should generate a message', async function() {
-      let error = OtterError.composite(e1, e2)
+      let error = OtterError.composite([e1, e2])
       expect(error).to.match(/simple error/)
       expect(error).to.match(/better error/)
     })
     it('should store the errors', async function() {
-      let error = OtterError.composite(e1, e2)
+      let error = OtterError.composite([e1, e2])
       expect(error.subErrors).to.deep.equal([e1, e2])
     })
     it('should store the codes', async function() {
-      let error = OtterError.composite(e1, e2)
+      let error = OtterError.composite([e1, e2])
       expect(error.subCodes).to.deep.equal(['test.basic', 'test.param'])
     })
   })

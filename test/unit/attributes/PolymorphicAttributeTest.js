@@ -49,15 +49,15 @@ describe('PolymorphicAttribute', function() {
       
       expect(error.code).to.equal('attr.poly.missingTypes')
     })
-    it.skip('should fail with invalid types', async function() {
+    it('should fail with invalid types', async function() {
       TestOtter.addModel(makeModel('InvalidModel', {
         comp: { type: 'Polymorphic', types: [ 'InvalidCluster' ] }
       }))
       
       let error = await asyncError(() => TestOtter.start())
       
-      expect(error.code).to.equal('attr.poly.invalidTypes')
-      // TODO: (^) Lost info for composite errors
+      expect(error.code).to.equal('composite')
+      expect(error.subCodes).to.include('attr.poly.invalidType')
     })
   })
   
@@ -77,6 +77,14 @@ describe('PolymorphicAttribute', function() {
     beforeEach(async function() {
       await TestOtter.start()
       entity = new Entity({ })
+    })
+    
+    it('should set the initial value', async function() {
+      entity = new Entity({ comp: {
+        _type: 'CompA', name: 'Geremy'
+      }})
+      expect(entity.comp).to.have.property('name', 'Geremy')
+      expect(entity.comp).to.have.property('_type', 'CompA')
     })
     
     describe('model#[name] getter', function() {
