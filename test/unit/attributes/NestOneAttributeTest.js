@@ -10,7 +10,7 @@ describe('NestOneAttribute', function() {
   
   let Entity, Component, TestOtter
   beforeEach(async function() {
-    Entity = makeModel('Parent', {
+    Entity = makeModel('Entity', {
       comp: { nestOne: 'Component' }
     })
     Component = makeCluster('Component', { name: String })
