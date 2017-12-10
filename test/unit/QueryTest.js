@@ -2,7 +2,7 @@ const expect = require('chai').expect
 const Otter = require('../../lib/Otter')
 const { Query } = Otter.Types
 
-const { makeModel } = require('../utils')
+const { asyncError, makeModel } = require('../utils')
 
 describe('Query', function() {
   
@@ -25,7 +25,7 @@ describe('Query', function() {
   
   describe('#constructor', function() {
     
-    it('should set the modelName', function() {
+    it('should set the modelName', async function() {
       let q = new Query(TestModel, {})
       expect(q.modelName).to.equal('TestModel')
     })
@@ -35,7 +35,7 @@ describe('Query', function() {
       expect(q.model).to.equal(TestModel)
     })
     
-    it('should initialize properties', function() {
+    it('should initialize properties', async function() {
       let q = new Query(TestModel, {})
       expect(q.where).to.deep.equal({})
       expect(q.sort).to.equal(null)
@@ -43,39 +43,39 @@ describe('Query', function() {
       expect(q.pluck).to.equal(null)
     })
     
-    it('should have a default value for where', function() {
+    it('should have a default value for where', async function() {
       let q = new Query(TestModel)
       expect(q.where).to.exist
     })
     
-    it('should use id shorthand', function() {
+    it('should use id shorthand', async function() {
       let q = new Query(TestModel, '7')
       expect(q.where.id).to.equal('7')
     })
     
-    it('should use id shorthand with arbitrary model id type', function() {
+    it('should use id shorthand with arbitrary model id type', async function() {
       let dateAsAnId = new Date()
       let q = new Query(DatedModel, dateAsAnId)
       expect(q.where.id).to.equal(dateAsAnId)
     })
     
-    it('should use id array shorthand', function() {
+    it('should use id array shorthand', async function() {
       let q = new Query(TestModel, ['1', '2'])
       expect(q.where.id).to.have.members(['1', '2'])
     })
     
-    it('should use id array shorthand with arbitrary model id type', function() {
+    it('should use id array shorthand with arbitrary model id type', async function() {
       let datesAsIds = [ new Date(), new Date() ]
       let q = new Query(DatedModel, datesAsIds)
       expect(q.where.id).to.deep.equal(datesAsIds)
     })
     
-    it('should construct where using where shorthand', function() {
+    it('should construct where using where shorthand', async function() {
       let q = new Query(TestModel, { a: 100 })
       expect(q.where.a).to.equal(100)
     })
     
-    it('should deconstruct options param', function() {
+    it('should deconstruct options param', async function() {
       let q = new Query(TestModel, 'a', {
         sort: 'b', limit: 'c', pluck: 'd'
       })
@@ -85,47 +85,50 @@ describe('Query', function() {
       expect(q.pluck).to.equal('d')
     })
     
-    it('should fail array shorthand is not strings', function() {
-      /* eslint-disable no-new */
-      let creatingQuery = () => {
-        new Query(TestModel, [ '1', 2 ])
-      }
-      expect(creatingQuery).to.throw(/must be strings/)
+    it('should fail array shorthand is not ids', async function() {
+      let error = await asyncError(() => new Query(TestModel, [ '1', 2 ]))
+      expect(error.code).to.equal('query.invalidShorthand')
     })
   })
   
   
   describe('#prepareForSchema', function() {
     
-    it('should pass if all attributes are valid', function() {
+    it('should pass if all attributes are valid', async function() {
       let q = new Query(TestModel, { name: {'!': 'Geoff'} })
       q.prepareForSchema(TestModel.schema)
     })
     
-    it('should processes the query', function() {
+    it('should processes the query', async function() {
       let q = new Query(TestModel, { name: { '!': 'Geoff' } })
       q.prepareForSchema(TestModel.schema)
       expect(q.processed).to.exist
       expect(q.processed.name).to.exist
     })
     
-    it('should fail for unknown expressions', function() {
+    it('should fail for unknown attributes', async function() {
+      let query = new Query(TestModel, { unknown: 73 })
+      let error = await asyncError(() => query.prepareForSchema(TestModel.schema))
+      expect(error.code).to.equal('query.unknownAttr')
+    })
+    
+    it('should fail for unknown expressions', async function() {
       let query = new Query(TestModel, { name: { 'random': 'Geoff' } })
-      let callingValidate = () => query.prepareForSchema(TestModel.schema)
-      expect(callingValidate).throws(/Unrecognised query expression/)
+      let error = await asyncError(() => query.prepareForSchema(TestModel.schema))
+      expect(error.code).to.equal('query.unknownExpr')
     })
     
     it('should fail for untyped attributes', async function() {
       let query = new Query(TestModel, { other: 10 })
-      let callingValidate = () => query.prepareForSchema(TestModel.schema)
-      expect(callingValidate).throws(/Cannot query untyped/)
+      let error = await asyncError(() => query.prepareForSchema(TestModel.schema))
+      expect(error.code).to.equal('query.untypedAttr')
     })
   })
   
   
   describe('#validateExpr', function() {
     
-    it('should store the type', function() {
+    it('should store the type', async function() {
       let expr = { '!': 'Geoff' }
       let q = new Query(TestModel, { name: expr })
       q.prepareForSchema(TestModel.schema)

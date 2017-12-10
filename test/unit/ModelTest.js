@@ -2,7 +2,7 @@ const expect = require('chai').expect
 const Otter = require('../../lib/Otter')
 const MemoryAdapter = require('../../lib/adapters/MemoryAdapter')
 
-const { makeModel } = require('../utils')
+const { asyncError, makeModel } = require('../utils')
 
 
 describe('Model', function() {
@@ -117,13 +117,8 @@ describe('Model', function() {
       expect(deleted).to.equal(1)
     })
     it('should fail for empty queries', async function() {
-      try {
-        await TestModel.destroy()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Destroy Guard/)
-      }
+      let error = await asyncError(() => TestModel.destroy())
+      expect(error.code).to.equal('model.destroyGuard')
     })
   })
   
@@ -160,13 +155,8 @@ describe('Model', function() {
       expect(models[1].name).to.equal('Terrance')
     })
     it('should fail for empty queries', async function() {
-      try {
-        await TestModel.update({}, { name: 'Tim' })
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Update Guard/)
-      }
+      let error = await asyncError(() => TestModel.update({}, { name: 'Tim' }))
+      expect(error.code).to.equal('model.updateGuard')
     })
   })
   
@@ -218,13 +208,8 @@ describe('Model', function() {
     })
     it('should fail updating a model that does not exist', async function() {
       let m = new TestModel({ id: '1', name: 'Geoff' })
-      try {
-        await m.save()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Cannot update/)
-      }
+      let error = await asyncError(() => m.save())
+      expect(error.code).to.equal('model.saveFailed')
     })
   })
   
@@ -239,26 +224,15 @@ describe('Model', function() {
     })
     it('should fail if the model isn\'t created yet', async function() {
       let m = new TestModel({ name: 'Geoff' })
-      
-      try {
-        await m.destroy()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/hasn't ben created/)
-      }
+      let error = await asyncError(() => m.destroy())
+      expect(error.code).to.equal('model.cannotDestroy')
     })
     it('should fail if model does not exist', async function() {
       
       let m = new TestModel({ id: '1', name: 'Geoff' })
       
-      try {
-        await m.destroy()
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/that doesn't exist/)
-      }
+      let error = await asyncError(() => m.destroy())
+      expect(error.code).to.equal('model.destroyFailed')
     })
   })
   

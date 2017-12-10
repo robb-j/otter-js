@@ -1,5 +1,6 @@
 const expect = require('chai').expect
 const Otter = require('../../lib/Otter')
+const MemoryAdapter = require('../../lib/adapters/MemoryAdapter')
 
 class TestAttribute extends Otter.Types.Attribute {}
 
@@ -22,24 +23,24 @@ describe('Otter', function() {
   
   describe('#extend', function() {
     
-    it('should create a new instance', function() {
+    it('should create a new instance', async function() {
       let AnotherOtter = TestOtter.extend()
       expect(AnotherOtter).to.not.equal(TestOtter)
     })
     
-    it('should carry across plugins', function() {
+    it('should carry across plugins', async function() {
       TestOtter.use(() => {})
       let AnotherOtter = TestOtter.extend()
       expect(AnotherOtter.active.plugins).to.have.lengthOf(1)
     })
     
-    it('should not carry across plugins after extension', function() {
+    it('should not carry across plugins after extension', async function() {
       let AnotherOtter = TestOtter.extend()
       TestOtter.use(() => {})
       expect(AnotherOtter.active.plugins).to.have.lengthOf(0)
     })
     
-    it('should shallow copy plugins', function() {
+    it('should shallow copy plugins', async function() {
       TestOtter.use(() => {})
       let AnotherOtter = TestOtter.extend()
       
@@ -50,7 +51,7 @@ describe('Otter', function() {
       expect(AnotherOtter.active.plugins).to.deep.equal(TestOtter.active.plugins)
     })
     
-    it('should shallow copy adapters', function() {
+    it('should shallow copy adapters', async function() {
       let AnotherOtter = TestOtter.extend()
       expect(AnotherOtter.active.adapters).to.not.equal(TestOtter.active.adapters)
     })
@@ -59,7 +60,7 @@ describe('Otter', function() {
   
   describe('#addAdapter', function() {
     
-    it('should store the adapter', function() {
+    it('should store the adapter', async function() {
       let adapter = { name: 'myAdapter', setup() {} }
       
       TestOtter.addAdapter(adapter)
@@ -67,20 +68,7 @@ describe('Otter', function() {
       expect(TestOtter.active.adapters.myAdapter).to.exist
     })
     
-    it('should fail if already registered', function() {
-      
-      let adapter = {
-        name: 'myAdapter',
-        setup() { }
-      }
-      TestOtter.addAdapter(adapter)
-      
-      let addingAdapter = () => { TestOtter.addAdapter(adapter) }
-      
-      expect(addingAdapter).to.throw(/Adapter already registered/)
-    })
-    
-    it('should return itself for chaining', function() {
+    it('should return itself for chaining', async function() {
       let adapter = { name: 'myAdapter', setup() {} }
       expect(TestOtter.addAdapter(adapter)).to.equal(TestOtter)
     })
@@ -89,12 +77,12 @@ describe('Otter', function() {
   
   describe('#addModel', function() {
     
-    it('should store the model', function() {
+    it('should store the model', async function() {
       TestOtter.addModel(TestModel)
       expect(TestOtter.active.models.TestModel).to.exist
     })
     
-    it('should return itself for chaining', function() {
+    it('should return itself for chaining', async function() {
       expect(TestOtter.addModel(TestModel)).to.equal(TestOtter)
     })
   })
@@ -113,12 +101,12 @@ describe('Otter', function() {
   
   describe('#addAttribute', function() {
     
-    it('should store the attribute', function() {
+    it('should store the attribute', async function() {
       TestOtter.addAttribute(TestAttribute)
       expect(TestOtter.active.attributes.Test).to.exist
     })
     
-    it('should return itself for chaining', function() {
+    it('should return itself for chaining', async function() {
       expect(TestOtter.addAttribute(TestAttribute)).to.equal(TestOtter)
     })
   })
@@ -126,17 +114,15 @@ describe('Otter', function() {
   
   describe('#addQueryExpr', function() {
     
-    it('should store the expr', function() {
+    it('should store the expr', async function() {
       let expr = (value, type) => { }
       TestOtter.addQueryExpr('myType', expr)
       expect(TestOtter.active.exprs.myType).to.equal(expr)
     })
     
-    it('should fail if not a function', function() {
-      let addingExpr = () => {
-        TestOtter.addQueryExpr('type', 'not an expr')
-      }
-      expect(addingExpr).to.throw(/Invalid QueryExpr/)
+    it('should fail if not a function', async function() {
+      let error = await asyncError(() => TestOtter.addQueryExpr('type', 'not an expr'))
+      expect(error.code).to.equal('config.invalidQueryExpr')
     })
   })
   
@@ -144,7 +130,7 @@ describe('Otter', function() {
   describe('#start', function() {
     
     let InvalidAdapterModel, ValidModel
-    beforeEach(function() {
+    beforeEach(async function() {
       InvalidAdapterModel = class extends Otter.Types.Model {
         static adapterName() { return 'invalid' }
       }
@@ -155,7 +141,7 @@ describe('Otter', function() {
     })
     
     
-    it('should return a promise', function() {
+    it('should return a promise', async function() {
       expect(TestOtter.start()).to.be.instanceOf(Promise)
     })
     
@@ -178,11 +164,11 @@ describe('Otter', function() {
     })
     
     it('should fail if model has an invalid adapter', async function() {
-      
+    
       TestOtter.addModel(InvalidAdapterModel)
-      
+    
       let error = await startupError(TestOtter)
-      expect(error).matches(/Invalid adapterName/)
+      expect(error.code).to.equal('config.invalidAdapter')
     })
     
     it('should succeed with a valid model', async function() {
@@ -250,7 +236,7 @@ describe('Otter', function() {
       AnotherOtter.addModel(ValidModel)
       
       let error = await startupError(AnotherOtter)
-      expect(error).matches(/does not support/)
+      expect(error.code).to.equal('config.unsupportedAttr')
     })
     
     it('should fail if an attribute is not valid', async function() {
@@ -294,7 +280,7 @@ describe('Otter', function() {
       
       let AnotherOtter = Otter.extend()
       let error = await startupError(AnotherOtter)
-      expect(error).matches(/No Adapters added/)
+      expect(error.code).to.equal('config.noAdapters')
     })
     
     it('should return itself for chaining', async function() {

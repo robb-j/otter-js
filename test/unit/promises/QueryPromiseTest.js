@@ -2,7 +2,7 @@ const expect = require('chai').expect
 const QueryPromise = require('../../../lib/promises/QueryPromise')
 const Otter = require('../../../lib/Otter')
 
-const { makeModel } = require('../../utils')
+const { asyncError, makeModel } = require('../../utils')
 
 describe('QueryPromise', function() {
   
@@ -47,8 +47,8 @@ describe('QueryPromise', function() {
       expect(query.where.age).to.equal(5)
     })
     it('should fail for unknown arguements', async function() {
-      let addingClause = () => { promise.where(9) }
-      expect(addingClause).to.throw(/Incorrect Arguements/)
+      let error = await asyncError(() => promise.where(9))
+      expect(error.code).to.equal('queryProm.invalidWhere')
     })
     it('should be chainable', async function() {
       let returned = promise.where({})
