@@ -6,7 +6,7 @@ const Otter = require('../../../lib/Otter')
 const { asyncError, makeModel, makeCluster } = require('../../utils')
 
 
-describe.only('PolymorphicAttribute', function() {
+describe('PolymorphicAttribute', function() {
   
   let Entity, CompA, CompB, TestOtter
   beforeEach(async function() {
@@ -68,6 +68,48 @@ describe.only('PolymorphicAttribute', function() {
       expect(Types).to.exist
       expect(Types.CompA).to.equal(CompA)
       expect(Types.CompB).to.equal(CompB)
+    })
+  })
+  
+  describe('#installOn', function() {
+    
+    let entity
+    beforeEach(async function() {
+      await TestOtter.start()
+      entity = new Entity({ })
+    })
+    
+    describe('model#[name] getter', function() {
+      it('should provide a default', async function() {
+        expect(entity.comp).to.deep.equal({ _type: null })
+      })
+      it('should return the cluster', async function() {
+        entity.comp = new CompA({ name: 'Geoff' })
+        expect(entity.comp).to.have.property('name', 'Geoff')
+      })
+      it('should add a _type', async function() {
+        entity.comp = new CompA({ name: 'Geoff' })
+        expect(entity.comp).to.have.property('_type', 'CompA')
+      })
+    })
+    
+    describe('model#[name] setter', function() {
+      it('should set using an instance', async function() {
+        let component = new CompB({ size: 42 })
+        entity.comp = component
+        expect(entity.comp).to.equal(component)
+      })
+      it('should set to null', async function() {
+        entity.comp = new CompB({ size: 1337 })
+        entity.comp = null
+        expect(entity.comp).to.deep.equal({ _type: null })
+      })
+      it('should set from values', async function() {
+        entity.comp = { _type: 'CompA', name: 'Thomas' }
+        expect(entity.comp).to.have.property('name', 'Thomas')
+        expect(entity.comp).to.have.property('_type', 'CompA')
+        expect(entity.comp).to.be.an.instanceOf(CompA)
+      })
     })
   })
   
