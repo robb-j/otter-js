@@ -4,6 +4,8 @@ const { MongoClient, ObjectID } = require('mongodb')
 const MongoAdapter = require('../../../lib/adapters/MongoAdapter')
 const Otter = require('../../../lib/Otter')
 
+const { asyncError } = require('../../utils')
+
 const { ObjectIDAttribute, HasOneAttribute } = require('../../../lib/attributes')
 
 class TestModel extends Otter.Types.Model {
@@ -365,13 +367,9 @@ describe('MongoAdapter', function() {
       let attr = TestModel.schema.name
       let expr = { type: 'unknown' }
       
-      try {
-        await testAdapter.evaluateExpr(attr, expr)
-        expect.fail('Should throw')
-      }
-      catch (error) {
-        expect(error).matches(/Unsupported expression/)
-      }
+      let error = await asyncError(() => testAdapter.evaluateExpr(attr, expr))
+      
+      expect(error.code).to.equal('adapter.unsupportedExpr')
     })
   })
   

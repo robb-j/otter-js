@@ -47,23 +47,24 @@ describe('#makePluginable', function() {
         expect(rtn).to.equal(target)
       })
       it('should fail if not an object', function() {
+        let threw = null
         try {
           target.use('not an object')
-          expect.fail('Should throw')
         }
         catch (error) {
-          expect(error).matches(/Invalid Plugin/)
+          threw = error
         }
+        expect(threw.code).to.equal('config.invalidPlugin')
       })
       it('should fail if no install passed', function() {
+        let threw = null
         try {
           target.use({})
-          expect.fail('Should throw')
         }
         catch (error) {
-          expect(error).matches(/Invalid Plugin/)
+          threw = error
         }
-        
+        expect(threw.code).to.equal('config.invalidPlugin')
       })
       it('should add plugins using the shorthand', function() {
         target.use(() => { })

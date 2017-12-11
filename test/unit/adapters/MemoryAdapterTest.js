@@ -78,12 +78,10 @@ describe('MemoryAdapter', function() {
   
   describe('#evaluateExpr', function() {
     
-    it('should throw for invalid expressions', function() {
-      let callingInvalidExpr = () => {
-        let expr = { type: 'invalid', expr: {} }
-        testAdapter.evaluateExpr(expr, {})
-      }
-      expect(callingInvalidExpr).to.throw(/Unsupported expression/)
+    it('should throw for invalid expressions', async function() {
+      let expr = { type: 'invalid', expr: {} }
+      let error = await asyncError(() => testAdapter.evaluateExpr(expr, {}))
+      expect(error.code).to.equal('adapter.unsupportedExpr')
     })
     it('should process the expression', function() {
       let expr = { type: 'equality', expr: 7 }
