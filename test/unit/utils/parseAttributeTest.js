@@ -3,6 +3,8 @@ const parseAttribute = require('../../../lib/utils/parseAttribute')
 
 const Attribute = require('../../../lib/Otter').Types.Attribute
 
+const { asyncError } = require('../../utils')
+
 const customTypes = {
   String: class extends Attribute { },
   Number: class extends Attribute { },
@@ -18,39 +20,36 @@ function parseAttrWithDefaults(attr) {
 
 describe('#parseAttribute', function() {
   
-  it('should parse type literals', function() {
+  it('should parse type literals', async function() {
     let attr = parseAttrWithDefaults(String)
     expect(attr).to.be.instanceOf(customTypes.String)
   })
   
-  it('should fail for invalid type literals', function() {
+  it('should fail for invalid type literals', async function() {
     function InvalidLiteral() { }
-    let callingParse = () => {
-      parseAttrWithDefaults(InvalidLiteral)
-    }
-    expect(callingParse).to.throw(/Invalid Type/)
+    
+    let error = await asyncError(() => parseAttrWithDefaults(InvalidLiteral))
+    expect(error.code).to.equal('attr.parser.invalidType')
   })
   
-  it('should parse string literals', function() {
+  it('should parse string literals', async function() {
     let attr = parseAttrWithDefaults('String')
     expect(attr).to.exist
   })
   
-  it('should fail for invalid string literals types', function() {
-    let callingParse = () => {
-      parseAttrWithDefaults('Invalid')
-    }
-    expect(callingParse).to.throw()
+  it('should fail for invalid string literals types', async function() {
+    let error = await asyncError(() => parseAttrWithDefaults('Invalid'))
+    expect(error.code).to.equal('attr.parser.invalidType')
   })
   
-  it('should parse typed objects', function() {
+  it('should parse typed objects', async function() {
   
     let raw = { type: 'String' }
     let attr = parseAttrWithDefaults(raw)
     expect(attr).to.exist
   })
   
-  it('should set name, model & options on new attribute', function() {
+  it('should set name, model & options on new attribute', async function() {
     let raw = { type: String, someProp: 'B' }
     let attr = parseAttrWithDefaults(raw)
     expect(attr.name).to.equal('myAttr')
@@ -58,12 +57,10 @@ describe('#parseAttribute', function() {
     expect(attr.options).to.have.property('someProp').to.equal('B')
   })
   
-  it('should fail if no type passed', function() {
+  it('should fail if no type passed', async function() {
     let raw = { someProp: 'C' }
-    let callingParse = () => {
-      parseAttrWithDefaults(raw)
-    }
-    expect(callingParse).to.throw(/Could not determine type/)
+    let error = await asyncError(() => parseAttrWithDefaults(raw))
+    expect(error.code).to.equal('attr.parser.unknownType')
   })
   
   it('should map using customNameMap on the Attribute', async function() {
