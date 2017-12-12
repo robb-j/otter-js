@@ -1,5 +1,5 @@
 const expect = require('chai').expect
-const getUsingDot = require('../../../lib/utils/getUsingDot')
+const getUsingDot = require('../../../../lib/utils/dot/get')
 
 describe('#getUsingDot', function() {
   

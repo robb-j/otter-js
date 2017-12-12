@@ -3,7 +3,7 @@ const PolymorphicAttribute = require('../../../lib/attributes/PolymorphicAttribu
 
 const Otter = require('../../../lib/Otter')
 
-const { asyncError, makeModel, makeCluster } = require('../../utils')
+const { makeModel, makeCluster } = require('../../utils')
 
 
 describe('PolymorphicAttribute', function() {
@@ -20,6 +20,11 @@ describe('PolymorphicAttribute', function() {
       .addModel(Entity)
       .addCluster(CompA)
       .addCluster(CompB)
+  })
+  
+  it('should use PolymorphicType', async function() {
+    await TestOtter.start()
+    expect(PolymorphicAttribute.traits).includes('PolymorphicType')
   })
   
   describe('#valueType', function() {
@@ -39,35 +44,12 @@ describe('PolymorphicAttribute', function() {
   describe('#prepareValueForQuery', function() {
   })
   
-  describe('#validateSelf', function() {
-    it('should fail without types', async function() {
-      TestOtter.addModel(makeModel('InvalidModel', {
-        comp: { type: 'Polymorphic' }
-      }))
-      
-      let error = await asyncError(() => TestOtter.start())
-      
-      expect(error.code).to.equal('attr.poly.missingTypes')
-    })
-    it('should fail with invalid types', async function() {
-      TestOtter.addModel(makeModel('InvalidModel', {
-        comp: { type: 'Polymorphic', types: [ 'InvalidCluster' ] }
-      }))
-      
-      let error = await asyncError(() => TestOtter.start())
-      
-      expect(error.code).to.equal('composite')
-      expect(error.subCodes).to.include('attr.poly.invalidType')
-    })
-  })
-  
   describe('#processOptions', function() {
-    it('should store key-mapped types', async function() {
+    it('should store types', async function() {
       await TestOtter.start()
       let Types = Entity.schema.comp.PolyTypes
       expect(Types).to.exist
       expect(Types.CompA).to.equal(CompA)
-      expect(Types.CompB).to.equal(CompB)
     })
   })
   
