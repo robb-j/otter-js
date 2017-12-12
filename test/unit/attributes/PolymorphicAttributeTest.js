@@ -11,7 +11,7 @@ describe('PolymorphicAttribute', function() {
   let Entity, CompA, CompB, TestOtter
   beforeEach(async function() {
     Entity = makeModel('Entity', {
-      comp: { type: 'Polymorphic', types: [ 'CompA', 'CompB' ] }
+      comp: { type: 'Polymorphic', clusters: [ 'CompA', 'CompB' ] }
     })
     CompA = makeCluster('CompA', { name: String })
     CompB = makeCluster('CompB', { size: Number })
