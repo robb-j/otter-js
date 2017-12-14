@@ -120,4 +120,26 @@ describe('NestManyAttribute', function() {
       })
     })
   })
+  
+  describe('#validateModelValue', function() {
+    beforeEach(async function() {
+      await TestOtter.start()
+    })
+    it('should use super', async function() {
+      let value = 9
+      let error = await asyncError(() => Entity.schema.comps.validateModelValue(value))
+      expect(error).to.have.property('code', 'attr.validation.type')
+    })
+    it('should fail if not an array', async function() {
+      let value = { }
+      let error = await asyncError(() => Entity.schema.comps.validateModelValue(value))
+      expect(error).to.have.property('code', 'attr.validation.notArray')
+    })
+    it('should use the ClusterType to validate each element', async function() {
+      let value = [ { name: 7 } ]
+      let error = await asyncError(() => Entity.schema.comps.validateModelValue(value))
+      expect(error).to.have.property('code', 'composite')
+      expect(error.subCodes).to.include('attr.validation.type')
+    })
+  })
 })

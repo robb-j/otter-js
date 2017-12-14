@@ -111,7 +111,8 @@ describe('NestOneAttribute', function() {
       await TestOtter.start()
       let value = { name: 7 }
       let error = await asyncError(() => Entity.schema.comp.validateModelValue(value))
-      expect(error).to.have.property('code', 'attr.validation.type')
+      expect(error).to.have.property('code', 'composite')
+      expect(error.subCodes).to.include('attr.validation.type')
     })
   })
   

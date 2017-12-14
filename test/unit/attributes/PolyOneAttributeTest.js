@@ -1,17 +1,17 @@
 const expect = require('chai').expect
-const PolymorphicAttribute = require('../../../lib/attributes/PolymorphicAttribute')
+const PolyOneAttribute = require('../../../lib/attributes/PolyOneAttribute')
 
 const Otter = require('../../../lib/Otter')
 
-const { makeModel, makeCluster } = require('../../utils')
+const { asyncError, makeModel, makeCluster } = require('../../utils')
 
 
-describe('PolymorphicAttribute', function() {
+describe('PolyOneAttribute', function() {
   
   let Entity, CompA, CompB, TestOtter
   beforeEach(async function() {
     Entity = makeModel('Entity', {
-      comp: { type: 'Polymorphic', clusters: [ 'CompA', 'CompB' ] }
+      comp: { type: 'PolyOne', clusters: [ 'CompA', 'CompB' ] }
     })
     CompA = makeCluster('CompA', { name: String })
     CompB = makeCluster('CompB', { size: Number })
@@ -23,20 +23,19 @@ describe('PolymorphicAttribute', function() {
   })
   
   it('should use PolymorphicType', async function() {
-    await TestOtter.start()
-    expect(PolymorphicAttribute.traits).includes('PolymorphicType')
+    expect(PolyOneAttribute.traits).includes('PolymorphicType')
   })
   
   describe('#valueType', function() {
     it('should be an object', async function() {
-      let attr = new PolymorphicAttribute()
+      let attr = new PolyOneAttribute('Model', 'name', { enum: [ {}, {} ] })
       expect(attr.valueType).to.equal('object')
     })
   })
   
   describe('#enumOptions', function() {
     it('should override to null to disable', async function() {
-      let attr = new PolymorphicAttribute()
+      let attr = new PolyOneAttribute()
       expect(attr.enumOptions).to.equal(null)
     })
   })
@@ -100,6 +99,28 @@ describe('PolymorphicAttribute', function() {
         expect(entity.comp).to.have.property('_type', 'CompA')
         expect(entity.comp).to.be.an.instanceOf(CompA)
       })
+    })
+  })
+  
+  describe('#validateModelValue', function() {
+    beforeEach(async function() {
+      await TestOtter.start()
+    })
+    it('should validate using super', async function() {
+      let value = 7
+      let error = await asyncError(() => Entity.schema.comp.validateModelValue(value))
+      expect(error).to.have.property('code', 'attr.validation.type')
+    })
+    it('should fail for invalid types', async function() {
+      let value = { _type: 'Invalid' }
+      let error = await asyncError(() => Entity.schema.comp.validateModelValue(value))
+      expect(error.code).to.equal('attr.poly.invalidType')
+    })
+    it('should validate using the type', async function() {
+      let value = { _type: 'CompA', name: 7 }
+      let error = await asyncError(() => Entity.schema.comp.validateModelValue(value))
+      expect(error).to.have.property('code', 'composite')
+      expect(error.subCodes).to.include('attr.validation.type')
     })
   })
   
