@@ -2,7 +2,7 @@ const expect = require('chai').expect
 const MongoInMemory = require('mongo-in-memory')
 const { MongoClient, ObjectID } = require('mongodb')
 const MongoAdapter = require('../../../lib/adapters/MongoAdapter')
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError } = require('../../utils')
 

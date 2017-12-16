@@ -1,5 +1,5 @@
 const expect = require('chai').expect
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 const MongoAdapter = require('../../../lib/adapters/MongoAdapter')
 
 describe('MemoryConnection', function() {

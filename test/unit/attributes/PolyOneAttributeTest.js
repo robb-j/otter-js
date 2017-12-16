@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const PolyOneAttribute = require('../../../lib/attributes/PolyOneAttribute')
 
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError, makeModel, makeCluster } = require('../../utils')
 
@@ -110,6 +110,9 @@ describe('PolyOneAttribute', function() {
       let value = 7
       let error = await asyncError(() => Entity.schema.comp.validateModelValue(value))
       expect(error).to.have.property('code', 'attr.validation.type')
+    })
+    it('should pass with no value', async function() {
+      await Entity.schema.comp.validateModelValue(null)
     })
     it('should fail for invalid types', async function() {
       let value = { _type: 'Invalid' }

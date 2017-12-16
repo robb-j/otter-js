@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const parseAttribute = require('../../../lib/utils/parseAttribute')
 
-const Attribute = require('../../../lib/Otter').Types.Attribute
+const Attribute = require('../../../lib').Types.Attribute
 
 const { asyncError } = require('../../utils')
 

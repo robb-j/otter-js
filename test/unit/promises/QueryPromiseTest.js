@@ -1,6 +1,6 @@
 const expect = require('chai').expect
 const QueryPromise = require('../../../lib/promises/QueryPromise')
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError, makeModel } = require('../../utils')
 

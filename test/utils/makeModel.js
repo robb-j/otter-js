@@ -1,4 +1,4 @@
-const Otter = require('../../lib/Otter')
+const Otter = require('../../lib')
 
 module.exports = function makeModel(name, attributes = {}) {
   

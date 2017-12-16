@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const HasManyAttribute = require('../../../lib/attributes/HasManyAttribute')
 
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError, makeModel } = require('../../utils')
 

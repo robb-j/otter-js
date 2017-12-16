@@ -2,7 +2,7 @@
   "name": "otterjs",
   "version": "0.1.1",
   "description": "A modern extendable ORM",
-  "main": "lib/Otter.js",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/robb-j/otter-js"

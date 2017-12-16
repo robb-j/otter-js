@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const PolyManyAttribute = require('../../../lib/attributes/PolyManyAttribute')
 
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError, makeModel, makeCluster } = require('../../utils')
 
@@ -72,6 +72,10 @@ describe('PolyManyAttribute', function() {
       it('should return values', async function() {
         expect(entity.comps).to.have.lengthOf(2)
       })
+      it('should default to []', async function() {
+        entity = new Entity()
+        expect(entity.comps).to.deep.equal([])
+      })
     })
     
     describe('~setter', function() {
@@ -82,6 +86,12 @@ describe('PolyManyAttribute', function() {
         ]
         entity.comps = toSet
         expect(entity.comps).to.deep.equal(toSet)
+      })
+      it('should add _type from clusters', async function() {
+        entity.comps = [
+          new CompA({ name: 'jumpy' })
+        ]
+        expect(entity.comps[0]).to.have.property('_type', 'CompA')
       })
       it('should set using objects with a _type', async function() {
         entity.comps = [
@@ -94,6 +104,26 @@ describe('PolyManyAttribute', function() {
         expect(entity.comps[1]).to.be.instanceof(CompB)
         expect(entity.comps[2]).to.be.instanceof(CompA)
       })
+      it('should add _type from values', async function() {
+        entity.comps = [
+          { _type: 'CompA', name: 'fishy' }
+        ]
+        expect(entity.comps[0]).to.have.property('_type', 'CompA')
+      })
+      it('should add _type to the model\'s values', async function() {
+        entity.comps = [ new CompA({ name: 'bouncy' }) ]
+        expect(entity.values.comps[0]).to.have.property('_type', 'CompA')
+      })
+    })
+    
+    describe('~push', function() {
+      it('should push values onto the relation', async function() {
+        entity.comps.push(
+          new CompA({ name: 'fancy' }),
+          new CompB({ size: 10 })
+        )
+        expect(entity.comps).to.have.lengthOf(4)
+      })
     })
   })
   
@@ -105,6 +135,9 @@ describe('PolyManyAttribute', function() {
       let value = 7
       let error = await asyncError(() => Entity.schema.comps.validateModelValue(value))
       expect(error).to.have.property('code', 'attr.validation.type')
+    })
+    it('should pass with no value', async function() {
+      await Entity.schema.comps.validateModelValue(null)
     })
     it('should fail for non-arrays', async function() {
       let value = { test: 5 }

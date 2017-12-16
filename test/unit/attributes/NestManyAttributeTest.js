@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const NestManyAttribute = require('../../../lib/attributes/NestManyAttribute')
 
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError, makeModel, makeCluster } = require('../../utils')
 
@@ -112,10 +112,6 @@ describe('NestManyAttribute', function() {
       })
       it('should ignore non-arrays', async function() {
         entity.comps = 5
-        expect(entity.comps).to.have.lengthOf(2)
-      })
-      it('should ignore invalid arrays', async function() {
-        entity.comps = [ 5 ]
         expect(entity.comps).to.have.lengthOf(2)
       })
     })

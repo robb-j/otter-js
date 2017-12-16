@@ -1,6 +1,6 @@
 const expect = require('chai').expect
 const Adapter = require('../../lib/Adapter')
-const Otter = require('../../lib/Otter')
+const Otter = require('../../lib')
 
 let { makeModel } = require('../utils')
 

@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const NestOneAttribute = require('../../../lib/attributes/NestOneAttribute')
 
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { asyncError, makeModel, makeCluster } = require('../../utils')
 

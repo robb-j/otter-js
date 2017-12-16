@@ -1,6 +1,6 @@
 const expect = require('chai').expect
 const MemoryAdapter = require('../../../lib/adapters/MemoryAdapter')
-const Otter = require('../../../lib/Otter')
+const Otter = require('../../../lib')
 
 const { makeModel, asyncError } = require('../../utils')
 
