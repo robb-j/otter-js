@@ -1,6 +1,5 @@
 const expect = require('chai').expect
 const Otter = require('../../lib')
-const MemoryAdapter = require('../../lib/adapters/MemoryAdapter')
 
 class TestAttribute extends Otter.Types.Attribute {}
 
@@ -19,7 +18,6 @@ describe('Otter', function() {
     TestModel = makeModel('TestModel', { })
     TestCluster = makeCluster('TestCluster', { })
   })
-  
   
   describe('#extend', function() {
     
@@ -57,7 +55,6 @@ describe('Otter', function() {
     })
   })
   
-  
   describe('#addAdapter', function() {
     
     it('should store the adapter', async function() {
@@ -74,7 +71,6 @@ describe('Otter', function() {
     })
   })
   
-  
   describe('#addModel', function() {
     
     it('should store the model', async function() {
@@ -87,7 +83,6 @@ describe('Otter', function() {
     })
   })
   
-  
   describe('#addCluster', function() {
     it('should store the cluster', async function() {
       TestOtter.addCluster(TestCluster)
@@ -97,7 +92,6 @@ describe('Otter', function() {
       expect(TestOtter.addCluster(TestCluster)).to.equal(TestOtter)
     })
   })
-  
   
   describe('#addAttribute', function() {
     
@@ -110,7 +104,6 @@ describe('Otter', function() {
       expect(TestOtter.addAttribute(TestAttribute)).to.equal(TestOtter)
     })
   })
-  
   
   describe('#addQueryExpr', function() {
     
@@ -125,7 +118,6 @@ describe('Otter', function() {
       expect(error.code).to.equal('config.invalidQueryExpr')
     })
   })
-  
   
   describe('#start', function() {
     
