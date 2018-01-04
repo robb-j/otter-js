@@ -3,22 +3,28 @@ const Otter = require('../../lib')
 const { Query } = Otter.Types
 
 const { asyncError, makeModel } = require('../utils')
+const { AddTraits, AssociativeType } = Otter.Utils
 
 describe('Query', function() {
   
-  let TestModel, Untyped, DatedModel
+  let TestModel, Untyped, DatedModel, Associated
   
   beforeEach(async function() {
     TestModel = makeModel('TestModel', {
-      name: String, other: 'Untyped'
+      // name: String, other: 'Untyped'
+      name: String, other: 'Untyped', nest: 'Associated'
     })
     DatedModel = makeModel('DatedModel', { id: Date })
     Untyped = class extends Otter.Types.Attribute { }
+    Associated = class extends AddTraits(Otter.Types.Attribute, AssociativeType) {
+      associatedCluster() { return TestModel }
+    }
     await Otter.extend()
       .use(Otter.Plugins.MemoryConnection)
       .addModel(TestModel)
       .addModel(DatedModel)
       .addAttribute(Untyped)
+      .addAttribute(Associated)
       .start()
   })
   
@@ -122,6 +128,12 @@ describe('Query', function() {
       let query = new Query(TestModel, { other: 10 })
       let error = await asyncError(() => query.prepareForSchema(TestModel.schema))
       expect(error.code).to.equal('query.untypedAttr')
+    })
+    
+    it('should process dot notation', async function() {
+      let query = new Query(TestModel, { 'nest.name': 'Geoff' })
+      query.prepareForSchema(TestModel.schema)
+      expect(query.processed).to.have.property('nest.name')
     })
   })
   
