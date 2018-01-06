@@ -16,7 +16,7 @@ describe('LogicalMongoProcessor', function() {
     let expr = {
       'and': [ { '!': 5 }, { '!': 7 } ]
     }
-    let q = boundProc(attr, expr)
+    let q = boundProc('myAttr', attr, expr)
     expect(q).to.have.property('$and')
     expect(q.$and).to.deep.equal([true, true])
   })

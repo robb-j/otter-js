@@ -5,7 +5,7 @@ const processor = require('../../../../../lib/adapters/processors/mongo/inequali
 describe('InequalityMongoProcessor', function() {
   it('should convert to mongo syntax', async function() {
     let attr = new StringAttr('myAttr')
-    let q = processor(attr, { '!': 'Some String' })
+    let q = processor('myAttr', attr, { '!': 'Some String' })
     expect(q.myAttr).to.have.property('$ne', 'Some String')
   })
 })

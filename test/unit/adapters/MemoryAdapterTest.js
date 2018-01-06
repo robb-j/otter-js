@@ -2,21 +2,26 @@ const expect = require('chai').expect
 const MemoryAdapter = require('../../../lib/adapters/MemoryAdapter')
 const Otter = require('../../../lib')
 
-const { makeModel, asyncError } = require('../../utils')
+const { makeModel, makeCluster, asyncError } = require('../../utils')
 
 
 describe('MemoryAdapter', function() {
   
-  let testAdapter, TestModel
-  
+  let testAdapter, TestModel, TestCluster
   beforeEach(async function() {
     testAdapter = new MemoryAdapter()
-    TestModel = makeModel('TestModel', { name: String })
+    TestCluster = makeCluster('TestCluster', {
+      width: Number, height: Number
+    })
+    TestModel = makeModel('TestModel', {
+      name: String, size: { nestOne: 'TestCluster' }
+    })
     
-    await Otter.extend().use(o => {
-      o.addAdapter(testAdapter)
-      o.addModel(TestModel)
-    }).start()
+    await Otter.extend()
+      .addAdapter(testAdapter)
+      .addModel(TestModel)
+      .addCluster(TestCluster)
+      .start()
   })
   
   describe('#setup', function() {
@@ -71,6 +76,20 @@ describe('MemoryAdapter', function() {
     })
     it('should cut of after limit', function() {
       let q = new Otter.Types.Query(TestModel, {}, { limit: 1 })
+      let res = testAdapter.processQuery(q)
+      expect(res).to.have.lengthOf(1)
+    })
+    it('should process nested queries', async function() {
+      
+      await testAdapter.create('TestModel', [
+        { name: 'Jim', size: { width: 10, height: 5 } },
+        { name: 'John', size: { width: 5, height: 10 } }
+      ])
+      
+      let q = new Otter.Types.Query(TestModel, {
+        'size.width': { '>': 5 }
+      })
+      testAdapter.validateModelQuery(q)
       let res = testAdapter.processQuery(q)
       expect(res).to.have.lengthOf(1)
     })

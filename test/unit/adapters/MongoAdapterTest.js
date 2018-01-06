@@ -9,7 +9,19 @@ const { asyncError } = require('../../utils')
 const { ObjectIDAttribute, HasOneAttribute } = require('../../../lib/attributes')
 
 class TestModel extends Otter.Types.Model {
-  static attributes() { return { name: String, age: Number } }
+  static attributes() {
+    return {
+      name: String,
+      age: Number,
+      size: { nestOne: 'TestCluster' }
+    }
+  }
+}
+
+class TestCluster extends Otter.Types.Cluster {
+  static attributes() {
+    return { width: Number, height: Number }
+  }
 }
 
 describe('MongoAdapter', function() {
@@ -39,6 +51,7 @@ describe('MongoAdapter', function() {
     // Start up Otter
     await Otter.extend()
       .addAdapter(testAdapter)
+      .addCluster(TestCluster)
       .addModel(TestModel)
       .start()
   })
@@ -244,6 +257,16 @@ describe('MongoAdapter', function() {
       let model = (await testAdapter.find('TestModel', { id }))[0]
       expect(model).to.exist
     })
+    it('should match nested queries', async function() {
+      await TestModel.create([
+        { name: 'Billy', size: { width: 10, height: 5 } },
+        { name: 'Bonny', size: { width: 5, height: 10 } }
+      ])
+      let records = await testAdapter.find('TestModel', {
+        'size.width': { '>': 5 }
+      })
+      expect(records).to.have.lengthOf(1)
+    })
   })
   
   describe('#update', function() {
@@ -349,6 +372,11 @@ describe('MongoAdapter', function() {
       expect(mq).to.not.have.property('updatedAt')
       expect(mq).to.have.property('_updatedAt')
     })
+    it('should process nested queries', async function() {
+      let query = new Otter.Types.Query(TestModel, { 'size.width': 100 })
+      query.prepareForSchema(TestModel.schema)
+      let mq = testAdapter.genMongoQuery(query)
+    })
   })
   
   describe('#evaluateExpr', function() {
@@ -357,17 +385,15 @@ describe('MongoAdapter', function() {
       testAdapter.processors.equality = (a, b) => {
         called = true
       }
-      let attr = TestModel.schema.name
       let query = new Otter.Types.Query('TestModel', { name: 'Mark' })
       query.prepareForSchema(TestModel.schema)
-      testAdapter.evaluateExpr(attr, query.processed.name)
+      testAdapter.evaluateExpr('name', query.processed.name)
       expect(called).to.equal(true)
     })
     it('should fail for invalid expressions', async function() {
-      let attr = TestModel.schema.name
       let expr = { type: 'unknown' }
       
-      let error = await asyncError(() => testAdapter.evaluateExpr(attr, expr))
+      let error = await asyncError(() => testAdapter.evaluateExpr('name', expr))
       
       expect(error.code).to.equal('adapter.unsupportedExpr')
     })
