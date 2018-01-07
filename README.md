@@ -1,6 +1,6 @@
 # Otter ORM
 
-A modern extendable ORM for javascript
+A modern extendable ORM for javascript ~ (WIP!)
 
 ## A Simple Example
 
@@ -241,3 +241,45 @@ Here some more info in detail about different features
 
 ### Unit Testing
 ...
+
+
+### Expression In Detail
+
+#### Definitions
+
+| Name               | Expression |
+| ------------------ | ---------- |
+| AttrFilter         | `{ AttrName: QueryExpr, ... }`
+| QueryExpr          | `ComparisonExpr` , `IncludesExpr` , `InequalityExpr` , `LogicalExpr` , `InList` , `RegexExpr` , `EqualityExpr` |
+| ValueType          | `object` , `string` , `number` , `boolean` , `Date` ~ where it matches the attribute type |
+| ComparisonOperator | `>` , `>=` , `<=` , `<` |
+| LogicalOperator    | `or` , `and` |
+
+```
+HasExpr        ::= AttrFilter     ~ where attr is AssociativeType.one
+IncludesExpr   ::= AttrFilter     ~ where attr is AssociativeType.many
+
+InequalityExpr ::= { '!': ValueType }
+ComparisonExpr ::= { ComparisonOperator: ValueType }
+LogicalExpr    ::= { LogicalOperator: AttrFilter[] }
+
+InList         ::= ValueType[]
+RegexExpr      ::= RegExp           ~ where attr.valueType is string
+EqualityExpr   ::= ValueType
+```
+
+#### Precedence
+
+Expressions have a precedence to which order that are executed in, defined below
+
+* (2x) Attribute Specific
+  * 21: `HasExpr`
+  * 20: `IncludesExpr`
+* (1x) Key Specific
+  * 12: `InequalityExpr`
+  * 11: `ComparisonExpr`
+  * 10: `LogicalExpr`
+* (0x) Type Specific
+  * 2: `InList`
+  * 1: `RegexExpr`
+  * 0: `EqualityExpr`

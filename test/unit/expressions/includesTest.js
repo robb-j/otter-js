@@ -5,7 +5,7 @@ const { AssociativeType, AddTraits } = Otter.Utils
 
 const { makeModel } = require('../../utils')
 
-describe.only('IncludesExpression', function() {
+describe('IncludesExpression', function() {
 
   let TestModel, Assoc, boundIncludes
   beforeEach(async function() {
