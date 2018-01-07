@@ -110,7 +110,40 @@ describe('Otter', function() {
     it('should store the expr', async function() {
       let expr = (value, type) => { }
       TestOtter.addQueryExpr('myType', expr)
-      expect(TestOtter.active.exprs.myType).to.equal(expr)
+      expect(TestOtter.active.exprs).to.have.lengthOf(1)
+    })
+    
+    it('should structure the expr', async function() {
+      let expr = (value, type) => { }
+      TestOtter.addQueryExpr('myType', expr)
+      expect(TestOtter.active.exprs[0]).to.include({
+        name: 'myType',
+        validator: expr
+      })
+    })
+    
+    it('should default the precedence to 99', async function() {
+      let expr = (value, type) => { }
+      TestOtter.addQueryExpr('myType', expr)
+      expect(TestOtter.active.exprs[0].precedence).to.equal(99)
+    })
+    
+    it('should use the functions precedence', async function() {
+      let expr = (value, type) => { }
+      expr.precedence = 42
+      TestOtter.addQueryExpr('myType', expr)
+      expect(TestOtter.active.exprs[0].precedence).to.equal(42)
+    })
+    
+    it('should sort by high precedence first', async function() {
+      let exprA = () => { }
+      let exprB = () => { }
+      exprA.precedence = 1
+      exprB.precedence = 2
+      TestOtter.addQueryExpr('exprA', exprA)
+      TestOtter.addQueryExpr('exprB', exprB)
+      expect(TestOtter.active.exprs[0].name).to.equal('exprB')
+      expect(TestOtter.active.exprs[1].name).to.equal('exprA')
     })
     
     it('should fail if not a function', async function() {
@@ -284,7 +317,7 @@ describe('Otter', function() {
       let expr = (value, type) => { }
       TestOtter.addQueryExpr('myType', expr)
       await TestOtter.start()
-      expect(Otter.Types.Query.exprs.myType).to.equal(expr)
+      expect(Otter.Types.Query.exprs.myType).to.deep.include(expr)
     })
     
     it('should register default expressions', async function() {
