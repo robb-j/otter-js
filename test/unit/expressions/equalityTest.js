@@ -9,4 +9,11 @@ describe('EqualityExpression', function() {
     let result = equality('A String', attr)
     expect(result).to.equal(true)
   })
+  it('should match null when not required', async function() {
+    let attr = new StringAttribute('name', 'ModelName', {
+      required: false
+    })
+    let result = equality(null, attr)
+    expect(result).to.equal(true)
+  })
 })

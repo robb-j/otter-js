@@ -340,6 +340,22 @@ describe('MongoAdapter', function() {
     })
   })
   
+  describe('#count', function() {
+    
+    beforeEach(async function() {
+      await TestModel.create([
+        { name: 'Geoff' },
+        { name: 'Mark' },
+        { name: 'Trevor' },
+        { name: 'John' }
+      ])
+    })
+    
+    it('should return the number of matches', async function() {
+      let count = await testAdapter.count('TestModel', { name: /o/ })
+      expect(count).to.equal(3)
+    })
+  })
   
   
   /* Query Processing */
@@ -376,6 +392,7 @@ describe('MongoAdapter', function() {
       let query = new Otter.Types.Query(TestModel, { 'size.width': 100 })
       query.prepareForSchema(TestModel.schema)
       let mq = testAdapter.genMongoQuery(query)
+      expect(mq['size.width']).to.equal(100)
     })
   })
   

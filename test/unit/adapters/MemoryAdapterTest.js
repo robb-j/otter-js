@@ -5,7 +5,18 @@ const Otter = require('../../../lib')
 const { makeModel, makeCluster, asyncError } = require('../../utils')
 
 
+
+
 describe('MemoryAdapter', function() {
+  
+  function addNotRegisteredCheck() {
+    it('should fail if the model is not registered', async function() {
+      let error = await asyncError(() => {
+        return testAdapter.find('InvalidModel', {})
+      })
+      expect(error).matches(/Cannot query unknown Model/)
+    })
+  }
   
   let testAdapter, TestModel, TestCluster
   beforeEach(async function() {
@@ -176,12 +187,8 @@ describe('MemoryAdapter', function() {
       ])
     })
     
-    it('should fail if the model is not registered', async function() {
-      let error = await asyncError(() => {
-        return testAdapter.find('InvalidModel', {})
-      })
-      expect(error).matches(/Cannot query unknown Model/)
-    })
+    addNotRegisteredCheck()
+    
     it('should process a raw query', async function() {
       let res = await testAdapter.find('TestModel', { name: 'Terrance' })
       expect(res).to.be.lengthOf(1)
@@ -208,12 +215,8 @@ describe('MemoryAdapter', function() {
       ])
     })
     
-    it('should fail if the model is not registered', async function() {
-      let error = await asyncError(() => {
-        return testAdapter.update('InvalidModel', {})
-      })
-      expect(error).matches(/Cannot query unknown Model/)
-    })
+    addNotRegisteredCheck()
+    
     it('should update values which match the query', async function() {
       await testAdapter.update('TestModel', '1', { name: 'Terry' })
       let models = await testAdapter.find('TestModel', '1')
@@ -254,12 +257,8 @@ describe('MemoryAdapter', function() {
       ])
     })
     
-    it('should fail if the model is not registered', async function() {
-      let error = await asyncError(() => {
-        return testAdapter.destroy('InvalidModel', {})
-      })
-      expect(error).matches(/unknown Model/)
-    })
+    addNotRegisteredCheck()
+    
     it('should remove the value', async function() {
       await testAdapter.destroy('TestModel', '1')
       let models = await testAdapter.find('TestModel', {})
@@ -274,6 +273,24 @@ describe('MemoryAdapter', function() {
         return testAdapter.destroy('TestModel', { age: 7 })
       })
       expect(error).matches(/unknown Attribute/)
+    })
+  })
+  
+  describe('#count', function() {
+    
+    beforeEach(async function() {
+      await testAdapter.create('TestModel', [
+        { name: 'Tom' },
+        { name: 'Geoff' },
+        { name: 'Terrance' }
+      ])
+    })
+    
+    addNotRegisteredCheck()
+    
+    it('should return the number of matches', async function() {
+      let n = await testAdapter.count('TestModel', { name: 'Terrance' })
+      expect(n).to.equal(1)
     })
   })
   

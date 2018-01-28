@@ -66,21 +66,16 @@ describe('Adapter', function() {
   })
   
   describe('#addProcessor', function() {
-    it('should store the processor under the type', function() {
-      testAdapter.addProcessor('where', (k, a, v) => { })
-      expect(testAdapter.processors.where).to.exist
-      expect(testAdapter.processors.where).to.have.lengthOf(1)
+    it('should store the processor', function() {
+      let myProc = () => {}
+      testAdapter.addProcessor('myProc', myProc)
+      expect(testAdapter.processors.myProc).to.exist
     })
     it('should fail if not a function', function() {
       let callingAdd = () => {
         testAdapter.addProcessor('where', 'not a function')
       }
       expect(callingAdd).to.throw(/Invalid Processor/)
-    })
-    it('should add new keys if not present', function() {
-      testAdapter.addProcessor('extra', (k, v, a) => { })
-      expect(testAdapter.processors.extra).to.exist
-      expect(testAdapter.processors.extra).to.have.lengthOf(1)
     })
     it('should return itself for chaining', function() {
       let value = testAdapter.addProcessor('extra', (k, v, a) => { })
