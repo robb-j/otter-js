@@ -97,6 +97,23 @@ describe('Model', function() {
     })
   })
   
+  describe('::count', function() {
+    beforeEach(async function() {
+      await TestModel.create([
+        { name: 'Geoff' },
+        { name: 'Terrance' }
+      ])
+    })
+    it('should count the models', async function() {
+      let count = await TestModel.count()
+      expect(count).to.equal(2)
+    })
+    it('should count with queries', async function() {
+      let count = await TestModel.count({ name: 'Geoff' })
+      expect(count).to.equal(1)
+    })
+  })
+  
   describe('::destroy', function() {
     beforeEach(async function() {
       await TestModel.create([
