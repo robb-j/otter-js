@@ -20,4 +20,10 @@ describe('#setUsingDot', function() {
     setUsingDot(object, 'a.c', true)
     expect(object.a).to.have.property('c', true)
   })
+  
+  it('should return the object', async () => {
+    let object = {}
+    let result = setUsingDot(object, 'a.b', 42)
+    expect(result).to.equal(object)
+  })
 })

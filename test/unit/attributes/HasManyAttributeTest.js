@@ -5,6 +5,11 @@ const Otter = require('../../../lib')
 
 const { asyncError, makeModel } = require('../../utils')
 
+function makeGrandParentModel(targetModel) {
+  return makeModel('GrandParent', {
+    children: { type: 'HasMany', model: targetModel }
+  })
+}
 
 function makeParentModel(targetModel) {
   return makeModel('Parent', {
@@ -134,6 +139,9 @@ describe('HasManyAttribute', function() {
         let billy = await Child.create({ name: 'Billy' })
         await geremy.children.add(billy)
         expect(billy.parent_id).to.equal(geremy.id)
+      })
+      it('should use nested relations', async () => {
+        
       })
     })
     
